@@ -14,7 +14,7 @@
 //extern CanTxMsg tmp_TxMessage;
  extern TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
  extern TIM_OCInitTypeDef  TIM_OCInitStructure;
-extern volatile struct {
+ extern volatile struct {
 		unsigned Key 	  :		1;
 		unsigned CalSpeed : 	1;
 		unsigned Sec      :		1;

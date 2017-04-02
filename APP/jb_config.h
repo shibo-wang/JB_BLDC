@@ -1,6 +1,7 @@
 // File Name   		:  jb_config.H
-#ifndef		__INIT_H__
-#define		__INIT_H__
+#ifndef		__JB_CONFIG_H__
+#define		__JB_CONFIG_H__
+//#include "stm32f0xx.h"
 
 // U,V,W PWM output
 #define GPIO_PIN_PWM_U_P 	GPIO_Pin_8
@@ -24,7 +25,6 @@
 #define GPIO_PORT_HALL_UV 	GPIOA
 #define GPIO_PIN_HALL_W 	GPIO_Pin_10
 #define GPIO_PORT_HALL_W 	GPIOB
-
 
 
 

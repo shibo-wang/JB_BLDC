@@ -304,7 +304,6 @@ void USART1_Init(void)
 {
 	GPIO_InitTypeDef GPIO_InitStructure;
 	USART_InitTypeDef USART_InitStructure;
-	NVIC_InitTypeDef NVIC_InitStruct;
 	
 	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOB, ENABLE);  //使能GPIOA的时钟
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);//使能USART的时钟
@@ -386,6 +385,7 @@ TIM_BDTRInitTypeDef TIM_BDTRInitStructure;
 TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
 TIM_OCInitTypeDef  TIM_OCInitStructure; 
 EXTI_InitTypeDef EXTI_InitStructure;
+
 static void SetPortDirection(void)
 {
   	GPIO_InitTypeDef GPIO_InitStructure;
@@ -427,7 +427,7 @@ static void SetPortDirection(void)
 	EXTI_Init(&EXTI_InitStructure);	
 
 	//turn off LED
-  	LED_G(0);	
+  LED_G(0);	
 }
 void NVIC_Configuration(void)
 {
