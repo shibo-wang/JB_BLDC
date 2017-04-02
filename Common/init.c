@@ -418,9 +418,9 @@ static void SetPortDirection(void)
 	
 	/*ªÙ∂˚–≈∫≈œﬂ÷–∂œ≈‰÷√*/
   
- 	GPIO_EXTILineConfig(GPIO_PortSourceGPIOC,GPIO_PinSource6);
-	GPIO_EXTILineConfig(GPIO_PortSourceGPIOC,GPIO_PinSource7);
-	GPIO_EXTILineConfig(GPIO_PortSourceGPIOC,GPIO_PinSource8);
+ SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOA, EXTI_PinSource1);
+ SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOA, EXTI_PinSource11);
+ SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOA, EXTI_PinSource15);
  
 	EXTI_InitStructure.EXTI_Line = EXTI_Line6|EXTI_Line7|EXTI_Line8;
 	EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
