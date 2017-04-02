@@ -20,6 +20,7 @@
 #include "init.h"
 //#include "USART1.h"
 #include "stm32f0xx_adc.h"
+#include "jb_config.h"
 
 
  TIM_TimeBaseInitTypeDef TIM1_TimeBaseStructure;
@@ -387,44 +388,35 @@ TIM_OCInitTypeDef  TIM_OCInitStructure;
 EXTI_InitTypeDef EXTI_InitStructure;
 static void SetPortDirection(void)
 {
-  GPIO_InitTypeDef GPIO_InitStructure;
-	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA | RCC_AHBPeriph_GPIOB |	RCC_AHBPeriph_GPIOF  , ENABLE);
-	///////////////////////////////
-	// Setting Output GPIO
-	///////////////////////////////
+  	GPIO_InitTypeDef GPIO_InitStructure;
+	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA | RCC_AHBPeriph_GPIOB , ENABLE);
+	
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 
-  //U+ V+ W+  HIGHT BRIG
-	GPIO_InitStructure.GPIO_Pin = \
-	GPIO_Pin_8 | GPIO_Pin_9 | GPIO_Pin_10 ;
-	GPIO_Init(GPIOA, &GPIO_InitStructure);
-  
-  //U- V- W-  LOW BRIG
-	GPIO_InitStructure.GPIO_Pin = \
-	GPIO_Pin_13 | GPIO_Pin_14 | GPIO_Pin_15;
-	GPIO_Init(GPIOB, &GPIO_InitStructure);
-
-  //TEST LED
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2;
-  GPIO_Init(GPIOB, &GPIO_InitStructure);
-	///////////////////////////////
-	// Setting Input GPIO
-	///////////////////////////////
-    
-  /* ≈‰÷√HallΩ”ø⁄IO */
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1|GPIO_Pin_11|GPIO_Pin_15;
+  	//UVW GPIO OUT
+	GPIO_InitStructure.GPIO_Pin = GPIO_PIN_PWM_U_P | GPIO_PIN_PWM_V_P | GPIO_PIN_PWM_W_P ;
+	GPIO_Init(GPIO_PORT_PWM_UVW_P, &GPIO_InitStructure);
+	GPIO_InitStructure.GPIO_Pin = GPIO_PIN_PWM_U_N | GPIO_PIN_PWM_V_N | GPIO_PIN_PWM_W_N;
+	GPIO_Init(GPIO_PORT_PWM_UVW_N, &GPIO_InitStructure);
+	
+  	//LED GPIO OUT
+	GPIO_InitStructure.GPIO_Pin = GPIO_PIN_LED_FLASH;
+  	GPIO_Init(GPIO_PORT_LED_FLASH, &GPIO_InitStructure);
+	    
+  	//HALL GPIO OUT
+	GPIO_InitStructure.GPIO_Pin = GPIO_PIN_HALL_U | GPIO_PIN_HALL_V | GPIO_PIN_HALL_W;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-	GPIO_Init(GPIOA, &GPIO_InitStructure);
+	GPIO_Init(GPIO_PORT_HALL_UVW, &GPIO_InitStructure);
 	
-	/*ªÙ∂˚–≈∫≈œﬂ÷–∂œ≈‰÷√*/
+	//HALL INTERRUPT
   
-  SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOA, EXTI_PinSource1);
-  SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOA, EXTI_PinSource11);
-  SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOA, EXTI_PinSource15);
+	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOA, EXTI_PinSource1);
+ 	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOA, EXTI_PinSource11);
+ 	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOA, EXTI_PinSource15);
  
-	EXTI_InitStructure.EXTI_Line = EXTI_Line1|EXTI_Line11|EXTI_Line15;
+	EXTI_InitStructure.EXTI_Line = EXTI_Line6|EXTI_Line7|EXTI_Line8;
 	EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
 	EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising_Falling;
 	EXTI_InitStructure.EXTI_LineCmd = ENABLE;
