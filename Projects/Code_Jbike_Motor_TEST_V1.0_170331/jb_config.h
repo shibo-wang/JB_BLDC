@@ -20,9 +20,11 @@
 
 // UVW HALL in
 #define GPIO_PIN_HALL_U 	GPIO_Pin_1
-#define GPIO_PIN_HALL_V 	GPIO_Pin_11
-#define GPIO_PIN_HALL_W 	GPIO_Pin_15
-#define GPIO_PORT_HALL_UVW 	GPIOA
+#define GPIO_PIN_HALL_V 	GPIO_Pin_15
+#define GPIO_PORT_HALL_UV 	GPIOA
+#define GPIO_PIN_HALL_W 	GPIO_Pin_10
+#define GPIO_PORT_HALL_W 	GPIOB
+
 
 
 

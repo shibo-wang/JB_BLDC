@@ -405,10 +405,15 @@ static void SetPortDirection(void)
   	GPIO_Init(GPIO_PORT_LED_FLASH, &GPIO_InitStructure);
 	    
   	//HALL GPIO OUT
-	GPIO_InitStructure.GPIO_Pin = GPIO_PIN_HALL_U | GPIO_PIN_HALL_V | GPIO_PIN_HALL_W;
+	GPIO_InitStructure.GPIO_Pin = GPIO_PIN_HALL_U | GPIO_PIN_HALL_V;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-	GPIO_Init(GPIO_PORT_HALL_UVW, &GPIO_InitStructure);
+	GPIO_Init(GPIO_PORT_HALL_UV, &GPIO_InitStructure);
+
+	GPIO_InitStructure.GPIO_Pin = GPIO_PIN_HALL_W;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_Init(GPIO_PORT_HALL_W, &GPIO_InitStructure);	
 	
 	//HALL INTERRUPT 
 	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOA, EXTI_PinSource1);
