@@ -9,6 +9,8 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f0xx_it.h"
 #include "init.h"
+#include "jb_config.h"
+
 
 //extern CanRxMsg tmp_CanRxMessage;
 //extern CanTxMsg tmp_TxMessage;
@@ -138,28 +140,53 @@ void Hall_SW(void)
 
 void EXTI0_1_IRQHandler(void)
  {
-  Hall=GPIO_ReadInputData(GPIOC);
-	Hall=Hall&0x01c0;
-	Hall=Hall>>6;
+  	Hall=GPIO_ReadInputData(GPIO_PORT_HALL_UV);
+	Hall=Hall&GPIO_PIN_HALL_U;
+	Hall=Hall>>1;			//U
 
 	//DisplayNumber4(0,0,Hall);
 	if(!Direction)Hall=7-Hall;
 	Hall_SW();
 	counter1++;
-	if(EXTI_GetITStatus(EXTI_Line6)!= RESET)
+
+	if(EXTI_GetITStatus(EXTI_Line1)!= RESET)
 	{
-		EXTI_ClearITPendingBit(EXTI_Line6);
-	}
-		if(EXTI_GetITStatus(EXTI_Line7)!= RESET)
-	{
-		EXTI_ClearITPendingBit(EXTI_Line7);
-	}
-		if(EXTI_GetITStatus(EXTI_Line8)!= RESET)
-	{
-		EXTI_ClearITPendingBit(EXTI_Line8);
+		EXTI_ClearITPendingBit(EXTI_Line1);
 	}
 }
- 
+
+
+void EXTI4_15_IRQHandler(void)
+{
+  	Hall=GPIO_ReadInputData(GPIO_PORT_HALL_UV);
+	Hall=Hall&GPIO_PIN_HALL_V;
+	if (Hall > 0)
+	{
+		Hall=Hall>>14;		//V
+	}
+
+  	Hall=GPIO_ReadInputData(GPIO_PORT_HALL_W);
+	Hall=Hall&GPIO_PIN_HALL_W;
+	if (Hall > 0)
+	{
+		Hall=Hall>>8;		//W
+	}
+
+	//DisplayNumber4(0,0,Hall);
+	if(!Direction)Hall=7-Hall;
+	Hall_SW();
+	counter1++;
+	if(EXTI_GetITStatus(EXTI_Line15)!= RESET)
+	{
+		EXTI_ClearITPendingBit(EXTI_Line15);
+	}
+	if(EXTI_GetITStatus(EXTI_Line10)!= RESET)
+	{
+		EXTI_ClearITPendingBit(EXTI_Line10);
+	}
+
+}
+
 
 /*******************************************************************************
 * Function Name  : TIM4_IRQHandler
