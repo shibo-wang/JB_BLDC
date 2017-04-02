@@ -332,11 +332,12 @@ void USART1_Init(void)
 	USART_Cmd(USART1,ENABLE);                             //使能USART1
 	
 	/* USART1的NVIC中断配置 */
+  /*
 	NVIC_InitStruct.NVIC_IRQChannel = USART1_IRQn;
 	NVIC_InitStruct.NVIC_IRQChannelPriority = 0x02;
 	NVIC_InitStruct.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&NVIC_InitStruct);
-				
+	*/			
 }
 
 //=============================================================================
@@ -394,23 +395,24 @@ static void SetPortDirection(void)
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 
-  //U+ V+ W+
+  //U+ V+ W+  HIGHT BRIG
 	GPIO_InitStructure.GPIO_Pin = \
-		GPIO_Pin_8 | GPIO_Pin_9 | GPIO_Pin_10 ;
+	GPIO_Pin_8 | GPIO_Pin_9 | GPIO_Pin_10 ;
 	GPIO_Init(GPIOA, &GPIO_InitStructure);
   
-  //U- V- W-
+  //U- V- W-  LOW BRIG
 	GPIO_InitStructure.GPIO_Pin = \
-		GPIO_Pin_13 | GPIO_Pin_14 | GPIO_Pin_15;
+	GPIO_Pin_13 | GPIO_Pin_14 | GPIO_Pin_15;
 	GPIO_Init(GPIOB, &GPIO_InitStructure);
 
+  //TEST LED
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2;
   GPIO_Init(GPIOB, &GPIO_InitStructure);
 	///////////////////////////////
 	// Setting Input GPIO
 	///////////////////////////////
     
-  	/* 配置Hall接口IO */
+  /* 配置Hall接口IO */
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1|GPIO_Pin_11|GPIO_Pin_15;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
@@ -418,22 +420,21 @@ static void SetPortDirection(void)
 	
 	/*霍尔信号线中断配置*/
   
- SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOA, EXTI_PinSource1);
- SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOA, EXTI_PinSource11);
- SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOA, EXTI_PinSource15);
+  SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOA, EXTI_PinSource1);
+  SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOA, EXTI_PinSource11);
+  SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOA, EXTI_PinSource15);
  
-	EXTI_InitStructure.EXTI_Line = EXTI_Line6|EXTI_Line7|EXTI_Line8;
+	EXTI_InitStructure.EXTI_Line = EXTI_Line1|EXTI_Line11|EXTI_Line15;
 	EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
 	EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising_Falling;
 	EXTI_InitStructure.EXTI_LineCmd = ENABLE;
 	EXTI_Init(&EXTI_InitStructure);	
 
-/*	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+/*GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
 
-
 	GPIO_InitStructure.GPIO_Pin = \
-		GPIO_Pin_9 | GPIO_Pin_10 | GPIO_Pin_11 | GPIO_Pin_12;
+	GPIO_Pin_9 | GPIO_Pin_10 | GPIO_Pin_11 | GPIO_Pin_12;
 	GPIO_Init(GPIOA, &GPIO_InitStructure);
 
 	// PB0 : INT
@@ -442,7 +443,38 @@ static void SetPortDirection(void)
   */
   LED_G(0);	
 }
+void NVIC_Configuration(void)
+{
+	NVIC_InitTypeDef NVIC_InitStructure;
+  
+  NVIC_InitStructure.NVIC_IRQChannel = USART1_IRQn;
+	NVIC_InitStructure.NVIC_IRQChannelPriority =2;
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+	NVIC_Init(&NVIC_InitStructure);
+  
+  
+	NVIC_InitStructure.NVIC_IRQChannel = EXTI4_15_IRQn; 
+	NVIC_InitStructure.NVIC_IRQChannelPriority = 0;
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+	NVIC_Init(&NVIC_InitStructure);	  
 
+	
+	NVIC_InitStructure.NVIC_IRQChannel = TIM2_IRQn;
+	NVIC_InitStructure.NVIC_IRQChannelPriority = 1;
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+	NVIC_Init(&NVIC_InitStructure);	  	
+		   
+	NVIC_InitStructure.NVIC_IRQChannel = TIM3_IRQn;
+	NVIC_InitStructure.NVIC_IRQChannelPriority = 2;
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+	NVIC_Init(&NVIC_InitStructure);	  		
+
+	NVIC_InitStructure.NVIC_IRQChannel = TIM14_IRQn;
+	NVIC_InitStructure.NVIC_IRQChannelPriority = 3;
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+	NVIC_Init(&NVIC_InitStructure);	  	
+
+}
 
 //--------------------------------------------------------------------------------------------------------------------------
 void uComOnChipInitial(void) 

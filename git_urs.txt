@@ -1,1 +1,18 @@
 http://jingyan.baidu.com/article/ce43664927411a3773afd30f.html
+git@github.com:shibo-wang/JB_BLDC.git
+
+ssh-keygen -t rsa -C "946391381@qq.com"
+linjunrong
+
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDoz444o3gDNPvzX4x7oFZJ44GxUybkWajDPZeNTEzk0yyYMSZSfSaviarseModPUouvmWL8IlR/oau2IeDFglRxdNirhW5o2vCLlaeK7m1/OjKOsIs9466Qvyc5EqdstuyB4SwDFWEdNJ9/L8HI+AnaSXGxZEVnXyBzNy9WIjdO5S0ZOdt1M9J0IWBFTidkGcccc9C3olsU7czHYxMuaWCOzPhbdVfXPjsVr01KEia5+8I0/0e+2FgA+Hj/DAKFQ3QtnvUaBolRHI85f6PDIl6FLQNVSxCTkIjyfuRf4q9M/FjmuAL4+fY7PRLFQkloVdnplMfKI4JmOO1INClyS9h 946391381@qq.com
+
+git clone git@github.com:shibowang/JB_BLDC.git
+
+http://jingyan.baidu.com/article/ce43664927411a3773afd30f.html
+
+文件同步：1、git status 2、git add -u?3、git commit -m ""
+查看修改：git diff   退出：q
+推送到远程服务器： git push origin master
+
+
+手把手学习GIT http://blog.jobbole.com/78960/

@@ -61,7 +61,7 @@ typedef enum {ERROR = 0, SUCCESS = !ERROR} ErrorStatus;
 #define S32_MIN    ((s32)-2147483648)
 
 
-#define		LED_G(x)		 GPIO_WriteBit(GPIOA, GPIO_Pin_8, (x)? Bit_SET : Bit_RESET)
+#define		LED_G(x)		 GPIO_WriteBit(GPIOB, GPIO_Pin_2, (x)? Bit_SET : Bit_RESET)
 
 void GPIOB_Pin_10_OUT_Init(void);
 void GPIOB_Pin_11_OUT_Init(void);

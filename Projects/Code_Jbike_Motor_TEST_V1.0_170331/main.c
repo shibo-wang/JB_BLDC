@@ -34,10 +34,7 @@ extern void TIM1_Configuration1(void);
 int state,state1,state2,state3,counter1,counter2,counter3,speed_1,check_run,speed_code;
 s32 aim_speed;
 short ADC_ConvertedValue[5]={0,0,0,0,0};
-TIM_BDTRInitTypeDef TIM_BDTRInitStructure;
-TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
-TIM_OCInitTypeDef  TIM_OCInitStructure; 
-EXTI_InitTypeDef EXTI_InitStructure;
+
 ErrorStatus HSEStartUpStatus;  
 
 u8 key_con(void)
@@ -95,7 +92,7 @@ int main(void)
   uComOnChipInitial();  
   printf("BY COLIN");
   printf("HELLO JBIKE TEST V1.0"); 
-  LED_G(0);	
+  LED_G(1);	
   while(1)
   { 	
    keytemp= key_con(); 
