@@ -19,7 +19,7 @@ int ADC_DMABUF;
 unsigned int AveActualSpeed;
 unsigned char AveNum;
 unsigned char j;
-		 
+//form pid		 
 float kp=0.50,ki=0.08,kd=0.0;
 int ek=0,ek1=0,ek2=0;
 float duk;
@@ -34,34 +34,37 @@ extern void TIM1_Configuration1(void);
 int state,state1,state2,state3,counter1,counter2,counter3,speed_1,check_run,speed_code;
 s32 aim_speed;
 short ADC_ConvertedValue[5]={0,0,0,0,0};
-
+//form main
+int i;
+char keytemp=1;
+char flagccw=0;
 ErrorStatus HSEStartUpStatus;  
 
-u8 key_con(void)
+
+//闭环计算子程序
+void CalculateDC(int u,int y)
 {
-	 static u8 key;
-	 key=0;
-	 if(!GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_5))
-	 {
-		 key=2;		 
-	 }
-	  if(!GPIO_ReadInputDataBit(GPIOC, GPIO_Pin_15))
-	 {
-		 key=1;		 
-	 }
-	  if(!GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_1))
-	 {
-		 key=3;	 
-	 }
-	  if(!GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_10))
-	 {
-		 key=4;		 
-	 }
-	  if(!GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_11))
-	 {
-		 key=5;		 
-	 }
-	 return key;
+	ek=u-y;
+	if(ek>1||ek<-1)
+	{
+		duk=kp*(ek-ek1)+ki*ek+kd*(ek+ek2-ek1*2);
+		du=(int)duk;
+		if(duk>1)duk=1;
+		if(duk<-1)duk=-1;
+		if(du>10)du=10;
+		if(du<-5)du=-5;	
+		pwm+=du;    
+		if(pwm<60)
+		{
+			pwm=60;		
+		}
+		if(pwm>0x7FE)
+		{
+			pwm=0x7FE;	
+		}
+		ek2=ek1;
+		ek1=ek;
+	}
 }
 
 int pid(int nonce,int aim)
@@ -86,28 +89,24 @@ int pid(int nonce,int aim)
 //=============================================================================
 int main(void)
 {
-  int i;
-	char keytemp=0;
-	char flagccw=0;
   uComOnChipInitial();  
   printf("BY COLIN");
   printf("HELLO JBIKE TEST V1.0"); 
-  LED_G(1);	
+  LED_G(1);
+ //初始化直接打开定时器测试
+ //if(keytemp==1)
+	{		  TIM_Cmd(TIM1, ENABLE);
+		    TIM_CtrlPWMOutputs(TIM1, ENABLE); 
+				startcnt=0;	
+	}		
   while(1)
   { 	
-   keytemp= key_con(); 
-  if(keytemp==1)
-	{
-		    TIM_Cmd(TIM1, ENABLE);
-		    TIM_CtrlPWMOutputs(TIM1, ENABLE); 
-				startcnt=0;
-		
-	}	
+  // keytemp= key_con(); 
+ 
 	if(keytemp==2)
 	{
 		     TIM_Cmd(TIM1, DISABLE);
-		     TIM_CtrlPWMOutputs(TIM1, DISABLE); 
-		
+		     TIM_CtrlPWMOutputs(TIM1, DISABLE); 		
 	}
 	aim_speed=Get_Adc_Average(ADC_Channel_13,10)-2000; 
 	if(aim_speed<50) aim_speed=50;
@@ -119,12 +118,12 @@ int main(void)
 			time=0;
 			if(flagccw==0)
 		   {
-			   Direction=1; 		
+			  Direction=1; 		
 		   }
 		else
-		    {
+		   {
 			  Direction=0;		  
-		    }
+		   }
 		flagccw=~flagccw;
 		}	  
 }
@@ -145,7 +144,7 @@ int main(void)
 		startcnt=37;
 		for(i=0;i<100000;i++);
 		My_PWM+=pid(speed_1,aim_speed)/((speed_1/My_PWM)+1);	
-			if(My_PWM<=0)			    
+		if(My_PWM<=0)			    
 		My_PWM=0;
 		if(My_PWM>5000)			    
 		My_PWM=5000;
