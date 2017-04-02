@@ -410,8 +410,7 @@ static void SetPortDirection(void)
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_Init(GPIO_PORT_HALL_UVW, &GPIO_InitStructure);
 	
-	//HALL INTERRUPT
-  
+	//HALL INTERRUPT 
 	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOA, EXTI_PinSource1);
  	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOA, EXTI_PinSource11);
  	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOA, EXTI_PinSource15);
@@ -422,18 +421,8 @@ static void SetPortDirection(void)
 	EXTI_InitStructure.EXTI_LineCmd = ENABLE;
 	EXTI_Init(&EXTI_InitStructure);	
 
-/*GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
-
-	GPIO_InitStructure.GPIO_Pin = \
-	GPIO_Pin_9 | GPIO_Pin_10 | GPIO_Pin_11 | GPIO_Pin_12;
-	GPIO_Init(GPIOA, &GPIO_InitStructure);
-
-	// PB0 : INT
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_7;
-	GPIO_Init(GPIOF, &GPIO_InitStructure);
-  */
-  LED_G(0);	
+	//turn off LED
+  	LED_G(0);	
 }
 void NVIC_Configuration(void)
 {
