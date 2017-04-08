@@ -4,15 +4,15 @@
 //#include "stm32f0xx.h"
 
 // U,V,W PWM output
-#define GPIO_PIN_PWM_U_P 	GPIO_Pin_8
-#define GPIO_PIN_PWM_V_P 	GPIO_Pin_9
-#define GPIO_PIN_PWM_W_P 	GPIO_Pin_10
-#define GPIO_PORT_PWM_UVW_P	GPIOA
+#define GPIO_PIN_PWM_P_U 	GPIO_Pin_8
+#define GPIO_PIN_PWM_P_V 	GPIO_Pin_9
+#define GPIO_PIN_PWM_P_W 	GPIO_Pin_10
+#define GPIO_PORT_PWM_P_UVW	GPIOA
 
-#define GPIO_PIN_PWM_U_N 	GPIO_Pin_13
-#define GPIO_PIN_PWM_V_N 	GPIO_Pin_14
-#define GPIO_PIN_PWM_W_N 	GPIO_Pin_15
-#define GPIO_PORT_PWM_UVW_N GPIOB
+#define GPIO_PIN_PWM_N_U 	GPIO_Pin_13
+#define GPIO_PIN_PWM_N_V 	GPIO_Pin_14
+#define GPIO_PIN_PWM_N_W 	GPIO_Pin_15
+#define GPIO_PORT_PWM_N_UVW GPIOB
 
 // LED output
 #define GPIO_PIN_LED_FLASH 	GPIO_Pin_2

@@ -85,20 +85,20 @@ void SysTick_Handler(void)
 
 __inline void open_half_bridge_N_U(void)
 {
-    GPIO_ResetBits(GPIO_PORT_PWM_UVW_N, GPIO_PIN_PWM_V_N | GPIO_PIN_PWM_W_N); 
-    GPIO_SetBits(GPIO_PORT_PWM_UVW_N, GPIO_PIN_PWM_U_N);      
+    GPIO_ResetBits(GPIO_PORT_PWM_N_UVW, GPIO_PIN_PWM_N_V | GPIO_PIN_PWM_N_W); 
+    GPIO_SetBits(GPIO_PORT_PWM_N_UVW, GPIO_PIN_PWM_N_U);      
 }
 
 __inline void open_half_bridge_N_V(void)
 {
-    GPIO_ResetBits(GPIO_PORT_PWM_UVW_N, GPIO_PIN_PWM_U_N | GPIO_PIN_PWM_W_N); 
-    GPIO_SetBits(GPIO_PORT_PWM_UVW_N, GPIO_PIN_PWM_V_N);    
+    GPIO_ResetBits(GPIO_PORT_PWM_N_UVW, GPIO_PIN_PWM_N_U | GPIO_PIN_PWM_N_W); 
+    GPIO_SetBits(GPIO_PORT_PWM_N_UVW, GPIO_PIN_PWM_N_V);    
 }
 
 __inline void open_half_bridge_N_W(void)
 {
-    GPIO_ResetBits(GPIO_PORT_PWM_UVW_N, GPIO_PIN_PWM_U_N | GPIO_PIN_PWM_V_N); 
-    GPIO_SetBits(GPIO_PORT_PWM_UVW_N, GPIO_PIN_PWM_W_N);      
+    GPIO_ResetBits(GPIO_PORT_PWM_N_UVW, GPIO_PIN_PWM_N_U | GPIO_PIN_PWM_N_V); 
+    GPIO_SetBits(GPIO_PORT_PWM_N_UVW, GPIO_PIN_PWM_N_W);      
 }
 
 __inline void open_half_bridge_P_U(u16 i_PWM)

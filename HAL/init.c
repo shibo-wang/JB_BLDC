@@ -372,10 +372,10 @@ static void SetPortDirection(void)
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 
     //UVW GPIO OUT
-	GPIO_InitStructure.GPIO_Pin = GPIO_PIN_PWM_U_P | GPIO_PIN_PWM_V_P | GPIO_PIN_PWM_W_P ;
-	GPIO_Init(GPIO_PORT_PWM_UVW_P, &GPIO_InitStructure);
-	GPIO_InitStructure.GPIO_Pin = GPIO_PIN_PWM_U_N | GPIO_PIN_PWM_V_N | GPIO_PIN_PWM_W_N;
-	GPIO_Init(GPIO_PORT_PWM_UVW_N, &GPIO_InitStructure);
+	GPIO_InitStructure.GPIO_Pin = GPIO_PIN_PWM_P_U | GPIO_PIN_PWM_P_V | GPIO_PIN_PWM_P_W ;
+	GPIO_Init(GPIO_PORT_PWM_P_UVW, &GPIO_InitStructure);
+	GPIO_InitStructure.GPIO_Pin = GPIO_PIN_PWM_N_U | GPIO_PIN_PWM_N_V | GPIO_PIN_PWM_N_W;
+	GPIO_Init(GPIO_PORT_PWM_N_UVW, &GPIO_InitStructure);
 	
   	//LED GPIO OUT
 	GPIO_InitStructure.GPIO_Pin = GPIO_PIN_LED_FLASH;
