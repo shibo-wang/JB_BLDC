@@ -83,57 +83,84 @@ void SysTick_Handler(void)
 
 }
 
+void open_half_bridge_N_U(void)
+{
+    GPIO_ResetBits(GPIO_PORT_PWM_UVW_N, GPIO_PIN_PWM_V_N | GPIO_PIN_PWM_W_N); 
+    GPIO_SetBits(GPIO_PORT_PWM_UVW_N, GPIO_PIN_PWM_U_N);      
+}
+
+void open_half_bridge_N_V(void)
+{
+    GPIO_ResetBits(GPIO_PORT_PWM_UVW_N, GPIO_PIN_PWM_U_N | GPIO_PIN_PWM_W_N); 
+    GPIO_SetBits(GPIO_PORT_PWM_UVW_N, GPIO_PIN_PWM_V_N);    
+}
+
+void open_half_bridge_N_W(void)
+{
+    GPIO_ResetBits(GPIO_PORT_PWM_UVW_N, GPIO_PIN_PWM_U_N | GPIO_PIN_PWM_V_N); 
+    GPIO_SetBits(GPIO_PORT_PWM_UVW_N, GPIO_PIN_PWM_W_N);      
+}
+
+void open_half_bridge_P_U(u16 i_PWM)
+{
+    TIM1->CCR1 = i_PWM;            
+    TIM1->CCR2 = 0;					  
+    TIM1->CCR3 = 0;    
+}
+
+void open_half_bridge_P_V(u16 i_PWM)
+{
+    TIM1->CCR1 = 0;            
+    TIM1->CCR2 = 0;					  
+    TIM1->CCR3 = i_PWM;     
+}
+
+void open_half_bridge_P_W(u16 i_PWM)
+{
+    TIM1->CCR1 = 0;            
+    TIM1->CCR2 = 0;					  
+    TIM1->CCR3 = i_PWM;     
+}
+
 void Hall_SW(void)
 {
 
 	motor_statue=1;
 	switch(Hall)
 	{
-		case 5:    
-		   TIM1->CCR2=0;             //AB
-		   TIM1->CCR1 = My_PWM;					  
-       TIM1->CCR3=0;
-		   GPIO_ResetBits(GPIOB, GPIO_Pin_13 | GPIO_Pin_15); 
-		   GPIO_SetBits(GPIOB, GPIO_Pin_14);   
+        case 5:    
+            //U->V
+            open_half_bridge_P_U(pwm);
+            open_half_bridge_N_V();
 			break;
-		case 1:
-       TIM1->CCR2=0;              //AC
-		   TIM1->CCR1 = My_PWM;					  
-       TIM1->CCR3=0;
-		   GPIO_ResetBits(GPIOB, GPIO_Pin_13 | GPIO_Pin_14); 
-		   GPIO_SetBits(GPIOB, GPIO_Pin_15);  
+        case 1:
+            //U->W
+            open_half_bridge_P_U(pwm);
+            open_half_bridge_N_W(); 
 			break;
 		case 3:	
-		  TIM1->CCR1=0;          //BC
-		  TIM1->CCR2 = My_PWM;					  
-      TIM1->CCR3=0;	
-		  GPIO_ResetBits(GPIOB, GPIO_Pin_13 | GPIO_Pin_14); 
-		  GPIO_SetBits(GPIOB, GPIO_Pin_15);          
+            //V->W
+            open_half_bridge_P_V(pwm);
+            open_half_bridge_N_W();          
 			break;
 		case 2:
-	     TIM1->CCR1=0;        //BA
-		   TIM1->CCR2 = My_PWM;					  
-       TIM1->CCR3=0;	
-		   GPIO_ResetBits(GPIOB, GPIO_Pin_14 | GPIO_Pin_15); 
-		   GPIO_SetBits(GPIOB, GPIO_Pin_13); 
-      break;
+	        //V->U
+            open_half_bridge_P_V(pwm);
+            open_half_bridge_N_U();  
+            break;
 		case 6:		
-		   TIM1->CCR2=0;//CA
-	     TIM1->CCR3 = My_PWM;					  
-       TIM1->CCR1=0;
-		   GPIO_ResetBits(GPIOB, GPIO_Pin_14 | GPIO_Pin_15); 
-		   GPIO_SetBits(GPIOB, GPIO_Pin_13);    
+            //W->U
+            open_half_bridge_P_W(pwm);
+            open_half_bridge_N_U();    
 			break;
 		case 4:			
-	     TIM1->CCR2=0; //CB
-		   TIM1->CCR3 = My_PWM;					  
-       TIM1->CCR1=0;
-		   GPIO_ResetBits(GPIOB, GPIO_Pin_13 | GPIO_Pin_15); 
-		   GPIO_SetBits(GPIOB, GPIO_Pin_14);   
+	        //W->V
+            open_half_bridge_P_W(pwm);
+            open_half_bridge_N_V();  
 			break;
-
 		default:
-		break;
+            printf("error: invalid HALL value");
+    		break;
 	}
 }
 

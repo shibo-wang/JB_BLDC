@@ -447,10 +447,10 @@ void NVIC_Configuration(void)
 //--------------------------------------------------------------------------------------------------------------------------
 void uComOnChipInitial(void) 
 {
-        SetPortDirection();	
-        USART1_Init();
-        TIM1_Configuration1();	  
-	 	TIM2_Configuration1();
-        TIM_Init(); 
+    SetPortDirection();	
+    USART1_Init();
+    TIM1_Configuration1();	  
+    TIM2_Configuration1();
+    TIM_Init(); 
 }
 
