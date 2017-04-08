@@ -45,37 +45,37 @@
           *(unsigned long long)DEADTIME_NS/1000000000uL) 
 void TIM1_Configuration1(void)
 {
-	  /* TIM1 Registers reset */
-	  /* Enable TIM1 clock */
-  RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1, ENABLE);
-  TIM_DeInit(TIM1);
-  TIM_TimeBaseStructInit(&TIM1_TimeBaseStructure);
-  /* Time Base configuration */
-  TIM1_TimeBaseStructure.TIM_Prescaler = 0x0;
-  TIM1_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
-  TIM1_TimeBaseStructure.TIM_Period = PWM_PERIOD;
-  TIM1_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV2;
+    /* TIM1 Registers reset */
+    /* Enable TIM1 clock */
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1, ENABLE);
+    TIM_DeInit(TIM1);
+    TIM_TimeBaseStructInit(&TIM1_TimeBaseStructure);
+    /* Time Base configuration */
+    TIM1_TimeBaseStructure.TIM_Prescaler = 0x0;
+    TIM1_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
+    TIM1_TimeBaseStructure.TIM_Period = PWM_PERIOD;
+    TIM1_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV2;
   
-  // Initial condition is REP=0 to set the UPDATE only on the underflow
-  TIM1_TimeBaseStructure.TIM_RepetitionCounter = REP_RATE;
-  TIM_TimeBaseInit(TIM1, &TIM1_TimeBaseStructure);
+    // Initial condition is REP=0 to set the UPDATE only on the underflow
+    TIM1_TimeBaseStructure.TIM_RepetitionCounter = REP_RATE;
+    TIM_TimeBaseInit(TIM1, &TIM1_TimeBaseStructure);
   
-  TIM_OCStructInit(&TIM1_OCInitStructure);
-  /* Channel 1, 2,3 in PWM mode */
-  TIM1_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1; 
-  TIM1_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable; 
-//  TIM1_OCInitStructure.TIM_OutputNState = TIM_OutputNState_Enable;                  
-  TIM1_OCInitStructure.TIM_Pulse = 0x505; //dummy value
-  TIM1_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High; 
+    TIM_OCStructInit(&TIM1_OCInitStructure);
+    /* Channel 1, 2,3 in PWM mode */
+    TIM1_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1; 
+    TIM1_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable; 
+    //  TIM1_OCInitStructure.TIM_OutputNState = TIM_OutputNState_Enable;                  
+    TIM1_OCInitStructure.TIM_Pulse = 0x505; //dummy value
+    TIM1_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High; 
  
-  TIM_OC1Init(TIM1, &TIM1_OCInitStructure); 
-  TIM_OC2Init(TIM1, &TIM1_OCInitStructure);
-  TIM_OC3Init(TIM1, &TIM1_OCInitStructure);
+    TIM_OC1Init(TIM1, &TIM1_OCInitStructure); 
+    TIM_OC2Init(TIM1, &TIM1_OCInitStructure);
+    TIM_OC3Init(TIM1, &TIM1_OCInitStructure);
 	  
-  /* TIM1 counter enable */
+    /* TIM1 counter enable */
 	TIM_ARRPreloadConfig(TIM1, ENABLE); //使能TIM3在ARR上的预装载寄存器
 	TIM_CtrlPWMOutputs(TIM1, DISABLE); 
-  TIM_Cmd(TIM1, DISABLE);
+    TIM_Cmd(TIM1, DISABLE);
 }
 void TIM2_Configuration1(void)
 {
@@ -129,57 +129,34 @@ void TIM3_Configuration1(void)
 void ADC1_DMA_Init(void)
 {
 	GPIO_InitTypeDef    GPIO_InitStructure;
-//	DMA_InitTypeDef     DMA_InitStructure;
+    //DMA_InitTypeDef     DMA_InitStructure;
 	ADC_InitTypeDef     ADC_InitStructure;
 
 	
 	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA, ENABLE);
 
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL ;
-  GPIO_Init(GPIOA, &GPIO_InitStructure);	
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;
+    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL ;
+    GPIO_Init(GPIOA, &GPIO_InitStructure);	
 		
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1 , ENABLE);		
 	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1 , ENABLE);
 	
 	ADC_DeInit(ADC1);//ADC恢复默认设置		
 
- // DMA_DeInit(DMA1_Channel1);	/* DMA1 Channel1 Config */
-  /*DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)ADC1_DR_Address;//外设地址
-  DMA_InitStructure.DMA_MemoryBaseAddr = (uint32_t)RegularConvData_Tab;//内存地址
-  DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralSRC;//外设作为数据传输的来源
-  DMA_InitStructure.DMA_BufferSize = 4;//
-  DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;//外设地址寄存器不变
-  DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;//内存地址寄存器不变
-  DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_HalfWord;//数据宽度为16位
-  DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_HalfWord;//数据宽度为16位
-  DMA_InitStructure.DMA_Mode = DMA_Mode_Circular;
-  DMA_InitStructure.DMA_Priority = DMA_Priority_High;//DMA_Priority设定DMA通道x的软件优先级
-  DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;//DMA通道x没有设置为内存到内存传输
-  DMA_Init(DMA1_Channel1, &DMA_InitStructure);
-		  
-  
-	
-	DMA_Cmd(DMA1_Channel1, ENABLE);*//* DMA1 Channel1 enable */			
-  
-//	ADC_DMARequestModeConfig(ADC1, ADC_DMAMode_Circular); /* Enable ADC_DMA */	
- // ADC_DMACmd(ADC1, ENABLE);  
-	
-		
-
 	ADC_StructInit(&ADC_InitStructure);//初始化ADC结构
 	ADC_InitStructure.ADC_Resolution = ADC_Resolution_12b;//12位精度
-  ADC_InitStructure.ADC_ContinuousConvMode = ENABLE; //规定模式装换工作在连续模式
-  ADC_InitStructure.ADC_ExternalTrigConvEdge = ADC_ExternalTrigConvEdge_None; 
-  ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;//数据对其为右对齐
-  ADC_InitStructure.ADC_ScanDirection = ADC_ScanDirection_Backward; //ADC的扫描方向
-  ADC_Init(ADC1, &ADC_InitStructure); 
+    ADC_InitStructure.ADC_ContinuousConvMode = ENABLE; //规定模式装换工作在连续模式
+    ADC_InitStructure.ADC_ExternalTrigConvEdge = ADC_ExternalTrigConvEdge_None; 
+    ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;//数据对其为右对齐
+    ADC_InitStructure.ADC_ScanDirection = ADC_ScanDirection_Backward; //ADC的扫描方向
+    ADC_Init(ADC1, &ADC_InitStructure); 
 	 
-  ADC_ChannelConfig(ADC1, ADC_Channel_1 , ADC_SampleTime_239_5Cycles); /* Convert the ADC1 Channel 11 with 239.5 Cycles as sampling time */  
+    ADC_ChannelConfig(ADC1, ADC_Channel_1 , ADC_SampleTime_239_5Cycles); /* Convert the ADC1 Channel 11 with 239.5 Cycles as sampling time */  
 
-  ADC_ChannelConfig(ADC1, ADC_Channel_Vrefint ,ADC_SampleTime_239_5Cycles); 
-  ADC_VrefintCmd(ENABLE);
+    ADC_ChannelConfig(ADC1, ADC_Channel_Vrefint ,ADC_SampleTime_239_5Cycles); 
+    ADC_VrefintCmd(ENABLE);
 	
 	ADC_ChannelConfig(ADC1, ADC_Channel_TempSensor ,ADC_SampleTime_239_5Cycles);
 	ADC_TempSensorCmd(ENABLE);
@@ -350,8 +327,8 @@ void USART1_IRQHandler(void)
 {
 	if(USART_GetITStatus(USART1, USART_IT_RXNE) != RESET)
 	{
-   USART_SendData(USART1,USART_ReceiveData(USART1));
-	 while (USART_GetFlagStatus(USART1,USART_FLAG_TXE) == RESET);
+   		USART_SendData(USART1,USART_ReceiveData(USART1));
+	 	while (USART_GetFlagStatus(USART1,USART_FLAG_TXE) == RESET);
 	}
 			
 }
@@ -394,7 +371,7 @@ static void SetPortDirection(void)
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 
-  	//UVW GPIO OUT
+    //UVW GPIO OUT
 	GPIO_InitStructure.GPIO_Pin = GPIO_PIN_PWM_U_P | GPIO_PIN_PWM_V_P | GPIO_PIN_PWM_W_P ;
 	GPIO_Init(GPIO_PORT_PWM_UVW_P, &GPIO_InitStructure);
 	GPIO_InitStructure.GPIO_Pin = GPIO_PIN_PWM_U_N | GPIO_PIN_PWM_V_N | GPIO_PIN_PWM_W_N;
@@ -428,13 +405,13 @@ static void SetPortDirection(void)
 	EXTI_Init(&EXTI_InitStructure);	
 
 	//turn off LED
-  LED_G(0);	
+    LED_G(0);	
 }
 void NVIC_Configuration(void)
 {
 	NVIC_InitTypeDef NVIC_InitStructure;
   
-  NVIC_InitStructure.NVIC_IRQChannel = USART1_IRQn;
+    NVIC_InitStructure.NVIC_IRQChannel = USART1_IRQn;
 	NVIC_InitStructure.NVIC_IRQChannelPriority =2;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
@@ -473,7 +450,7 @@ void uComOnChipInitial(void)
         SetPortDirection();	
         USART1_Init();
         TIM1_Configuration1();	  
-	      TIM2_Configuration1();
+	 	TIM2_Configuration1();
         TIM_Init(); 
 }
 
