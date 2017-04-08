@@ -23,13 +23,13 @@
 		unsigned Fault 	  :		1;
 		}Flags;
 extern unsigned int T3Count;
-extern unsigned int pwm;
+extern unsigned int g_pwm_value;
 u16 AD_value;
 u16 Count;
 u16 aaa;
 bool LED_15;
 bool Direction;
-u16 Hall;
+u16 g_HALL_state;
 u16 time=0;
 extern u16 motor_statue;
 u16 My_PWM=1000;
@@ -83,79 +83,93 @@ void SysTick_Handler(void)
 
 }
 
-void open_half_bridge_N_U(void)
+__inline void open_half_bridge_N_U(void)
 {
     GPIO_ResetBits(GPIO_PORT_PWM_UVW_N, GPIO_PIN_PWM_V_N | GPIO_PIN_PWM_W_N); 
     GPIO_SetBits(GPIO_PORT_PWM_UVW_N, GPIO_PIN_PWM_U_N);      
 }
 
-void open_half_bridge_N_V(void)
+__inline void open_half_bridge_N_V(void)
 {
     GPIO_ResetBits(GPIO_PORT_PWM_UVW_N, GPIO_PIN_PWM_U_N | GPIO_PIN_PWM_W_N); 
     GPIO_SetBits(GPIO_PORT_PWM_UVW_N, GPIO_PIN_PWM_V_N);    
 }
 
-void open_half_bridge_N_W(void)
+__inline void open_half_bridge_N_W(void)
 {
     GPIO_ResetBits(GPIO_PORT_PWM_UVW_N, GPIO_PIN_PWM_U_N | GPIO_PIN_PWM_V_N); 
     GPIO_SetBits(GPIO_PORT_PWM_UVW_N, GPIO_PIN_PWM_W_N);      
 }
 
-void open_half_bridge_P_U(u16 i_PWM)
+__inline void open_half_bridge_P_U(u16 i_PWM)
 {
     TIM1->CCR1 = i_PWM;            
     TIM1->CCR2 = 0;					  
     TIM1->CCR3 = 0;    
 }
 
-void open_half_bridge_P_V(u16 i_PWM)
+__inline void open_half_bridge_P_V(u16 i_PWM)
+{
+    TIM1->CCR1 = 0;            
+    TIM1->CCR2 = i_PWM;					  
+    TIM1->CCR3 = 0;     
+}
+
+__inline open_half_bridge_P_W(u16 i_PWM)
 {
     TIM1->CCR1 = 0;            
     TIM1->CCR2 = 0;					  
     TIM1->CCR3 = i_PWM;     
 }
 
-void open_half_bridge_P_W(u16 i_PWM)
-{
-    TIM1->CCR1 = 0;            
-    TIM1->CCR2 = 0;					  
-    TIM1->CCR3 = i_PWM;     
-}
-
-void Hall_SW(void)
+void update_bridge_state(void)
 {
 
 	motor_statue=1;
-	switch(Hall)
+    
+    u16 l_pwm_value = g_pwm_value;
+    u16 l_hall_state = g_HALL_state;
+    if (l_pwm_value < PWM_MIN_VALUE || l_pwm_value > PWM_MAX_VALUE)
+    {
+        printf("error: invalid pwm value: %d",l_pwm_value);
+        break;    
+    }
+    if (l_hall_state < 1 || l_hall_state > 6)
+    {
+        printf("error: invalid HALL value: %d",l_hall_state);
+        break;
+    }
+    
+	switch(g_HALL_state)
 	{
         case 5:    
             //U->V
-            open_half_bridge_P_U(pwm);
+            open_half_bridge_P_U(l_pwm_value);
             open_half_bridge_N_V();
 			break;
         case 1:
             //U->W
-            open_half_bridge_P_U(pwm);
+            open_half_bridge_P_U(l_pwm_value);
             open_half_bridge_N_W(); 
 			break;
 		case 3:	
             //V->W
-            open_half_bridge_P_V(pwm);
+            open_half_bridge_P_V(l_pwm_value);
             open_half_bridge_N_W();          
 			break;
 		case 2:
 	        //V->U
-            open_half_bridge_P_V(pwm);
+            open_half_bridge_P_V(l_pwm_value);
             open_half_bridge_N_U();  
             break;
 		case 6:		
             //W->U
-            open_half_bridge_P_W(pwm);
+            open_half_bridge_P_W(l_pwm_value);
             open_half_bridge_N_U();    
 			break;
 		case 4:			
 	        //W->V
-            open_half_bridge_P_W(pwm);
+            open_half_bridge_P_W(l_pwm_value);
             open_half_bridge_N_V();  
 			break;
 		default:
@@ -167,13 +181,13 @@ void Hall_SW(void)
 
 void EXTI0_1_IRQHandler(void)
  {
-  	Hall=GPIO_ReadInputData(GPIO_PORT_HALL_UV);
-	Hall=Hall&GPIO_PIN_HALL_U;
-	Hall=Hall>>1;			//U
+  	g_HALL_state=GPIO_ReadInputData(GPIO_PORT_HALL_UV);
+	g_HALL_state=g_HALL_state&GPIO_PIN_HALL_U;
+	g_HALL_state=g_HALL_state>>1;			//U
 
-	//DisplayNumber4(0,0,Hall);
-	if(!Direction)Hall=7-Hall;
-	Hall_SW();
+	//DisplayNumber4(0,0,g_HALL_state);
+	if(!Direction)g_HALL_state=7-g_HALL_state;
+	update_bridge_state();
 	counter1++;
 
 	if(EXTI_GetITStatus(EXTI_Line1)!= RESET)
@@ -185,23 +199,23 @@ void EXTI0_1_IRQHandler(void)
 
 void EXTI4_15_IRQHandler(void)
 {
-  	Hall=GPIO_ReadInputData(GPIO_PORT_HALL_UV);
-	Hall=Hall&GPIO_PIN_HALL_V;
-	if (Hall > 0)
+  	g_HALL_state=GPIO_ReadInputData(GPIO_PORT_HALL_UV);
+	g_HALL_state=g_HALL_state&GPIO_PIN_HALL_V;
+	if (g_HALL_state > 0)
 	{
-		Hall=Hall>>14;		//V
+		g_HALL_state=g_HALL_state>>14;		//V
 	}
 
-  	Hall=GPIO_ReadInputData(GPIO_PORT_HALL_W);
-	Hall=Hall&GPIO_PIN_HALL_W;
-	if (Hall > 0)
+  	g_HALL_state=GPIO_ReadInputData(GPIO_PORT_HALL_W);
+	g_HALL_state=g_HALL_state&GPIO_PIN_HALL_W;
+	if (g_HALL_state > 0)
 	{
-		Hall=Hall>>8;		//W
+		g_HALL_state=g_HALL_state>>8;		//W
 	}
 
-	//DisplayNumber4(0,0,Hall);
-	if(!Direction)Hall=7-Hall;
-	Hall_SW();
+	//DisplayNumber4(0,0,g_HALL_state);
+	if(!Direction)g_HALL_state=7-g_HALL_state;
+	update_bridge_state();
 	counter1++;
 	if(EXTI_GetITStatus(EXTI_Line15)!= RESET)
 	{

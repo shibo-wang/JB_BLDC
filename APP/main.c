@@ -12,7 +12,10 @@ volatile struct {
 
 unsigned int DesiredSpeed=500;
 unsigned int ActualSpeed;
-unsigned int pwm=500;
+
+#define PWM_MAX_VALUE (0x7FE)
+#define PWM_MIN_VALUE (60)
+unsigned int g_pwm_value=500;
 unsigned int T3Count;
 unsigned int ActualSpeed5[3];
 int ADC_DMABUF;
@@ -28,7 +31,7 @@ int ekSpeed=0;
 int motor_statue=0;
 char startcnt=0;
 extern int My_PWM;
-extern int Hall,time;
+extern int g_HALL_state,time;
 extern char Direction; 
 extern void TIM1_Configuration1(void);
 int state,state1,state2,state3,counter1,counter2,counter3,speed_1,check_run,speed_code;
@@ -53,14 +56,14 @@ void CalculateDC(int u,int y)
 		if(duk<-1)duk=-1;
 		if(du>10)du=10;
 		if(du<-5)du=-5;	
-		pwm+=du;    
-		if(pwm<60)
+		g_pwm_value+=du;    
+		if(PWM_MIN_VALUE<60)
 		{
-			pwm=60;		
+			PWM_MIN_VALUE=60;		
 		}
-		if(pwm>0x7FE)
+		if(g_pwm_value>PWM_MAX_VALUE)
 		{
-			pwm=0x7FE;	
+			g_pwm_value=PWM_MAX_VALUE;	
 		}
 		ek2=ek1;
 		ek1=ek;
@@ -132,9 +135,9 @@ int main(void)
 	{
 	if(time>10)
 	 { 
-		Hall_SW();
-		Hall++;
-	  if(	Hall>6) 	Hall=1;
+		update_bridge_state();
+		g_HALL_state++;
+	  if(	g_HALL_state>6) 	g_HALL_state=1;
 		time=0;
 	}
 	 startcnt++; 
