@@ -10,5 +10,8 @@ Output/
 Debug/STM32F0308_Discovery.map
 Debug/startup_stm32f030x8.lst
 Debug/JBike_Motor_V1_STM32F030F4.dep
+SourceInsight/
+Debug/JLinkLog.txt
+Debug/JLinkSettings.ini
 
 
