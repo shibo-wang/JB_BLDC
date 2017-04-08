@@ -228,7 +228,7 @@ void handle_HALL_interrupt(void)
 
 void EXTI0_1_IRQHandler(void)
  {
-    handle_HALL_interrupt();
+  //  handle_HALL_interrupt();
 	if(EXTI_GetITStatus(EXTI_Line1)!= RESET)
 	{
 		EXTI_ClearITPendingBit(EXTI_Line1);
@@ -238,7 +238,7 @@ void EXTI0_1_IRQHandler(void)
 
 void EXTI4_15_IRQHandler(void)
 {
-	handle_HALL_interrupt();
+//	handle_HALL_interrupt();
 	if(EXTI_GetITStatus(EXTI_Line15)!= RESET)
 	{
 		EXTI_ClearITPendingBit(EXTI_Line15);

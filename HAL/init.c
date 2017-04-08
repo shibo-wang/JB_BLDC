@@ -518,7 +518,7 @@ void config_HALL()
 {
     config_HALL_RCC();
     config_HALL_GPIO();
-//    config_HALL_NVIC();
+    config_HALL_NVIC();
     config_HALL_EXTI();
 }
 
@@ -698,7 +698,7 @@ void config_PWM_new()
 	TIM1_OCInitStructure.TIM_OutputNState = TIM_OutputNState_Enable; //TIM1_OutputNState选择互补输出比较状态
 	TIM1_OCInitStructure.TIM_Pulse = 200; //TIM1_Pulse设置了待装入捕获比较寄存器的脉冲值——占空比为50%。
 	TIM1_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High; //TIM1_OCPolarity输出极性高；
-	TIM1_OCInitStructure.TIM_OCNPolarity = TIM_OCPolarity_High; //TIM1互补输出极性为高
+	TIM1_OCInitStructure.TIM_OCNPolarity = TIM_OCPolarity_Low; //TIM1互补输出极性为高
 	//原书中OCP和OCNP均设置为Low，看不出互补特性
 	TIM1_OCInitStructure.TIM_OCIdleState = TIM_OCIdleState_Reset; //TIM1_OCIdleState选择空闲状态下的非工作状态(MOE=0时设置TIM1输出比较空闲状态)
 	TIM1_OCInitStructure.TIM_OCNIdleState = TIM_OCIdleState_Reset; //MOE = 0时重置互补输出的输出比较空闲状态
@@ -821,7 +821,7 @@ void config_PWM()
 void uComOnChipInitial(void) 
 {
 
-	config_HALL();
+//	config_HALL();
     config_PWM();
     SetPortDirection();	    
 #if 0     
