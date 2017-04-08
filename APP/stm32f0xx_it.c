@@ -31,6 +31,7 @@ bool LED_15;
 bool g_motor_direction;
 u16 g_HALL_state;
 u16 time=0;
+
 extern u16 motor_statue;
 extern unsigned int g_pwm_value;
 u16 My_PWM=1000;
@@ -81,7 +82,16 @@ void PendSV_Handler(void)
   */
 void SysTick_Handler(void)
 {
-
+    static    u16 tick_times;
+    if (++tick_times > 1000) tick_times = 0;
+    if (tick_times < 500)
+    {
+        LED_G(1); 
+    }
+    else 
+    {
+        LED_G(0); 
+    }  
 }
 
 __inline void open_half_bridge_N_U(void)
