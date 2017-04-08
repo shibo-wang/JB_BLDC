@@ -73,7 +73,7 @@ void TIM1_Configuration1(void)
     TIM_OC3Init(TIM1, &TIM1_OCInitStructure);
 	  
     /* TIM1 counter enable */
-	TIM_ARRPreloadConfig(TIM1, ENABLE); //使能TIM3在ARR上的预装载寄存器
+	TIM_ARRPreloadConfig(TIM1, ENABLE); //使能TIM1在ARR上的预装载寄存器
 	TIM_CtrlPWMOutputs(TIM1, DISABLE); 
     TIM_Cmd(TIM1, DISABLE);
 }
