@@ -1,6 +1,7 @@
 #include "stm32f0xx.h"
 #include "init.h"
 #include "stm32f0xx_adc.h"
+#include "jb_config.h"
 //static int TimingDelay = 0;
 
 volatile struct {
@@ -13,8 +14,6 @@ volatile struct {
 unsigned int DesiredSpeed=500;
 unsigned int ActualSpeed;
 
-#define PWM_MAX_VALUE (0x7FE)
-#define PWM_MIN_VALUE (60)
 unsigned int g_pwm_value=500;
 unsigned int T3Count;
 unsigned int ActualSpeed5[3];
@@ -34,6 +33,8 @@ extern int My_PWM;
 extern int g_HALL_state,time;
 extern char Direction; 
 extern void TIM1_Configuration1(void);
+extern void update_bridge_state(void);
+
 int state,state1,state2,state3,counter1,counter2,counter3,speed_1,check_run,speed_code;
 s32 aim_speed;
 short ADC_ConvertedValue[5]={0,0,0,0,0};
@@ -57,9 +58,9 @@ void CalculateDC(int u,int y)
 		if(du>10)du=10;
 		if(du<-5)du=-5;	
 		g_pwm_value+=du;    
-		if(PWM_MIN_VALUE<60)
+		if(g_pwm_value<PWM_MIN_VALUE)
 		{
-			PWM_MIN_VALUE=60;		
+			g_pwm_value=PWM_MIN_VALUE;		
 		}
 		if(g_pwm_value>PWM_MAX_VALUE)
 		{

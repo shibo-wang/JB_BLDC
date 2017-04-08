@@ -32,6 +32,7 @@ bool Direction;
 u16 g_HALL_state;
 u16 time=0;
 extern u16 motor_statue;
+extern unsigned int g_pwm_value;
 u16 My_PWM=1000;
 extern int state,state1,state2,state3,counter1,counter2,counter3,speed_1,check_run;
 extern u32 aim_speed;
@@ -115,7 +116,7 @@ __inline void open_half_bridge_P_V(u16 i_PWM)
     TIM1->CCR3 = 0;     
 }
 
-__inline open_half_bridge_P_W(u16 i_PWM)
+__inline void open_half_bridge_P_W(u16 i_PWM)
 {
     TIM1->CCR1 = 0;            
     TIM1->CCR2 = 0;					  
@@ -123,21 +124,21 @@ __inline open_half_bridge_P_W(u16 i_PWM)
 }
 
 void update_bridge_state(void)
-{
-
-	motor_statue=1;
-    
-    u16 l_pwm_value = g_pwm_value;
-    u16 l_hall_state = g_HALL_state;
+{ 
+    u16 l_pwm_value = 0;
+    u16 l_hall_state = 0;;
+    l_pwm_value = g_pwm_value;
+    l_hall_state = g_HALL_state;
+		motor_statue=1;
     if (l_pwm_value < PWM_MIN_VALUE || l_pwm_value > PWM_MAX_VALUE)
     {
         printf("error: invalid pwm value: %d",l_pwm_value);
-        break;    
+        return;    
     }
     if (l_hall_state < 1 || l_hall_state > 6)
     {
         printf("error: invalid HALL value: %d",l_hall_state);
-        break;
+        return;
     }
     
 	switch(g_HALL_state)
@@ -264,8 +265,8 @@ void TIM3_IRQHandler(void)
 			 {
 			 	Key_Test2=0;
 				aim_speed-=200;
-				if(aim_speed<0)
-				aim_speed=0;
+				if(aim_speed < 0)
+					aim_speed=0;
 			}			 	
 		} 		
 		if(GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_3))
