@@ -23,7 +23,7 @@ unsigned char j;
 float kp=0.50,ki=0.08,kd=0.0;
 int ek=0,ek1=0,ek2=0;
 float duk;
-int du;
+int du, jk;
 int ekSpeed=0;
 int motor_statue=0;
 char startcnt=0;
@@ -39,6 +39,7 @@ int i;
 char keytemp=1;
 char flagccw=0;
 ErrorStatus HSEStartUpStatus;  
+
 
 
 //闭环计算子程序
@@ -92,23 +93,28 @@ int main(void)
   uComOnChipInitial();  
   printf("BY COLIN");
   printf("HELLO JBIKE TEST V1.0"); 
-  LED_G(1);
+ // LED_G(1);
  //初始化直接打开定时器测试
  //if(keytemp==1)
-	{		  TIM_Cmd(TIM1, ENABLE);
-		    TIM_CtrlPWMOutputs(TIM1, ENABLE); 
-				startcnt=0;	
-	}		
+ //  SystemInit1();
+  SysTick_Config(48000); 
+ 
+ 	TIM_Cmd(TIM1, ENABLE);
+    TIM_CtrlPWMOutputs(TIM1, ENABLE); 
+	startcnt=0;	
+		
   while(1)
   { 	
+  LED_G(0);
   // keytemp= key_con(); 
- 
+    
+  
 	if(keytemp==2)
 	{
 		     TIM_Cmd(TIM1, DISABLE);
 		     TIM_CtrlPWMOutputs(TIM1, DISABLE); 		
 	}
-	aim_speed=Get_Adc_Average(ADC_Channel_13,10)-2000; 
+   aim_speed=Get_Adc_Average(ADC_Channel_13,10)-2000; 
 	if(aim_speed<50) aim_speed=50;
   if(aim_speed>2500 ) aim_speed=2500;
   if(keytemp==5)
@@ -127,30 +133,32 @@ int main(void)
 		flagccw=~flagccw;
 		}	  
 }
- 
-  if(startcnt<36)  //换相6次后启动
+
+ if(startcnt<36)  //换相6次后启动
 	{
 	if(time>10)
 	 { 
 		Hall_SW();
 		Hall++;
-	  if(	Hall>6) 	Hall=1;
+	  if(Hall>6) 	
+        Hall=1;  
 		time=0;
 	}
-	 startcnt++; 
+	startcnt++; 
 	}
-  else
+  else 
+
 	{
-		startcnt=37;
-		for(i=0;i<100000;i++);
-		My_PWM+=pid(speed_1,aim_speed)/((speed_1/My_PWM)+1);	
-		if(My_PWM<=0)			    
-		My_PWM=0;
-		if(My_PWM>5000)			    
-		My_PWM=5000;
-		
+			startcnt=37;
+			for(i=0;i<100000;i++);
+			My_PWM+=pid(speed_1,aim_speed)/((speed_1/My_PWM)+1);	
+			if(My_PWM<=0)			    
+			My_PWM=0;
+			if(My_PWM>5000)			    
+			My_PWM=5000;
+
 	}
-	 
+ 
   }
 }
 

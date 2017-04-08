@@ -17,16 +17,17 @@
  extern TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
  extern TIM_OCInitTypeDef  TIM_OCInitStructure;
  extern volatile struct {
-		unsigned Key 	  :		1;
-		unsigned CalSpeed : 	1;
-		unsigned Sec      :		1;
-		unsigned Fault 	  :		1;
+	unsigned Key 	  :		1;
+	unsigned CalSpeed : 	1;
+	unsigned Sec      :		1;
+	unsigned Fault 	  :		1;
 		}Flags;
 extern unsigned int T3Count;
 extern unsigned int pwm;
 u16 AD_value;
 u16 Count;
 u16 aaa;
+u16 BJD;
 bool LED_15;
 bool Direction;
 u16 Hall;
@@ -80,7 +81,12 @@ void PendSV_Handler(void)
   */
 void SysTick_Handler(void)
 {
-
+  BJD++;
+  if(BJD>=180&&(BJD<=200))
+  {
+   BJD=0; 
+   LED_G(1); 
+  }
 }
 
 void Hall_SW(void)
@@ -187,7 +193,15 @@ void EXTI4_15_IRQHandler(void)
 
 }
 
+void TIM2_IRQHandler(void)    
+{
+  if (TIM_GetITStatus(TIM2, TIM_IT_Update) != RESET)
+	{
+    TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
+		time++;
 
+    }
+}
 /*******************************************************************************
 * Function Name  : TIM4_IRQHandler
 * Description    : This function handles TIM4 global interrupt request.
@@ -198,7 +212,7 @@ void EXTI4_15_IRQHandler(void)
 int Key_Test1=0,Key_Test2=0;
 void TIM3_IRQHandler(void)
 {	  
-    if (TIM_GetITStatus(TIM3, TIM_IT_Update) != RESET)
+ /*   if (TIM_GetITStatus(TIM3, TIM_IT_Update) != RESET)
 	{
      TIM_ClearITPendingBit(TIM3, TIM_IT_Update);
 		if(GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_2)==0)
@@ -215,7 +229,7 @@ void TIM3_IRQHandler(void)
 		} 		
 		if(GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_2))
 			Key_Test1=0;	
-		//***********************************************	
+		
 		if(GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_3)==0)
 		{
 			 Key_Test2++;
@@ -229,8 +243,10 @@ void TIM3_IRQHandler(void)
 		} 		
 		if(GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_3))
 			Key_Test2=0;	
-	}
+	}*/
 }
+
+
 
 /******************************************************************************/
 /*                 STM32F0xx Peripherals Interrupt Handlers                   */

@@ -75,7 +75,7 @@ void TIM1_Configuration1(void)
     /* TIM1 counter enable */
 	TIM_ARRPreloadConfig(TIM1, ENABLE); //使能TIM3在ARR上的预装载寄存器
 	TIM_CtrlPWMOutputs(TIM1, DISABLE); 
-    TIM_Cmd(TIM1, DISABLE);
+  TIM_Cmd(TIM1, DISABLE);
 }
 void TIM2_Configuration1(void)
 {
@@ -103,8 +103,8 @@ void TIM3_Configuration1(void)
 {
     TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
     //  TIM_OCInitTypeDef  TIM_OCInitStructure ;
+    
     TIM_DeInit( TIM3);                              //复位TIM2定时器
-
     /* TIM2 clock enable [TIM2定时器允许]*/
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
 
@@ -125,6 +125,33 @@ void TIM3_Configuration1(void)
     TIM_Cmd(TIM3, ENABLE);
 }
 
+
+/*
+ void TIM_Init(void)
+{
+  TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
+  NVIC_InitTypeDef NVIC_InitStructure;
+
+  RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
+
+  NVIC_InitStructure.NVIC_IRQChannel = TIM3_IRQn;
+  NVIC_InitStructure.NVIC_IRQChannelPriority = 0;
+  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+  NVIC_Init(&NVIC_InitStructure);
+ 
+
+  TIM_TimeBaseStructure.TIM_Period = 2000;           // 自动重装载寄存器周期的值(计数值) 
+  TIM_TimeBaseStructure.TIM_Prescaler = (18000 - 1);	//时钟预分频数 
+  TIM_TimeBaseStructure.TIM_ClockDivision = 0;			//向上计数模式
+  TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
+
+  TIM_TimeBaseInit(TIM3, &TIM_TimeBaseStructure);
+
+  TIM_ClearFlag(TIM3, TIM_FLAG_Update);			        // 清除溢出中断标志 
+  TIM_ITConfig(TIM3,TIM_IT_Update,ENABLE);
+  TIM_Cmd(TIM3, ENABLE);
+}
+*/
 
 void ADC1_DMA_Init(void)
 {
@@ -166,7 +193,90 @@ void ADC1_DMA_Init(void)
 			
 }
 
+void ADC_INIT(void)
+{
+  ADC_InitTypeDef     ADC_InitStructure;
+  GPIO_InitTypeDef    GPIO_InitStructure;
+  DMA_InitTypeDef   DMA_InitStructure;
+  /* ADC1 DeInit */  
+  ADC_DeInit(ADC1); 
+  /* GPIOC Periph clock enable */
+  RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOC, ENABLE);
+  
+   /* ADC1 Periph clock enable */
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, ENABLE);
+  
+  /* DMA1 clock enable */
+ // RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1 , ENABLE);
+  
+  /* Configure ADC Channel11 as analog input */
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1 ;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;
+  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL ;
+  GPIO_Init(GPIOC, &GPIO_InitStructure);
+  
+ /*
+  DMA_DeInit(DMA1_Channel1);
+  DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)ADC1_DR_Address;
+  DMA_InitStructure.DMA_MemoryBaseAddr = (uint32_t)RegularConvData_Tab;
+  DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralSRC;
+  DMA_InitStructure.DMA_BufferSize = 4;
+  DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
+  DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
+  DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_HalfWord;
+  DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_HalfWord;
+  DMA_InitStructure.DMA_Mode = DMA_Mode_Circular;
+  DMA_InitStructure.DMA_Priority = DMA_Priority_High;
+  DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;
+  DMA_Init(DMA1_Channel1, &DMA_InitStructure);
+  DMA_Cmd(DMA1_Channel1, ENABLE);
+ */ 
+ 
+  /* ADC DMA request in circular mode */
+  ADC_DMARequestModeConfig(ADC1, ADC_DMAMode_Circular);
+  
+  /* Enable ADC_DMA */
+  ADC_DMACmd(ADC1, ENABLE);  
+  
+  /* Initialize ADC structure */
+  ADC_StructInit(&ADC_InitStructure);
+  
+  /* Configure the ADC1 in continous mode withe a resolutuion equal to 12 bits  */
+  ADC_InitStructure.ADC_Resolution = ADC_Resolution_12b;
+  ADC_InitStructure.ADC_ContinuousConvMode = ENABLE; 
+  ADC_InitStructure.ADC_ExternalTrigConvEdge = ADC_ExternalTrigConvEdge_None;
+  ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
+  ADC_InitStructure.ADC_ScanDirection = ADC_ScanDirection_Backward;
+  ADC_Init(ADC1, &ADC_InitStructure); 
 
+  /* Convert the ADC1 Channel 1 with 55.5 Cycles as sampling time */ 
+  ADC_ChannelConfig(ADC1, ADC_Channel_11 , ADC_SampleTime_55_5Cycles);   
+  
+  
+  /* Convert the ADC1 temperature sensor  with 55.5 Cycles as sampling time */ 
+  ADC_ChannelConfig(ADC1, ADC_Channel_TempSensor , ADC_SampleTime_55_5Cycles);  
+  ADC_TempSensorCmd(ENABLE);
+  
+  /* Convert the ADC1 Vref  with 55.5 Cycles as sampling time */ 
+  ADC_ChannelConfig(ADC1, ADC_Channel_Vrefint , ADC_SampleTime_55_5Cycles); 
+  ADC_VrefintCmd(ENABLE);
+  
+  /* Convert the ADC1 Vbat with 55.5 Cycles as sampling time */ 
+  ADC_ChannelConfig(ADC1, ADC_Channel_Vbat , ADC_SampleTime_55_5Cycles);  
+  ADC_VbatCmd(ENABLE);
+  
+  /* ADC Calibration */
+  ADC_GetCalibrationFactor(ADC1);
+  
+  /* Enable ADC1 */
+  ADC_Cmd(ADC1, ENABLE);     
+  
+  /* Wait the ADCEN falg */
+  while(!ADC_GetFlagStatus(ADC1, ADC_FLAG_ADEN)); 
+  
+  /* ADC1 regular Software Start Conv */ 
+  ADC_StartOfConversion(ADC1);
+}
 /*
 void  ADC_INIT(void)
 { 	
@@ -174,11 +284,8 @@ void  ADC_INIT(void)
 	GPIO_InitTypeDef GPIO_InitStructure;
 
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC |RCC_APB2Periph_ADC1	, ENABLE );	  //使能ADC1通道时钟
- 
-
 	RCC_ADCCLKConfig(RCC_PCLK2_Div6);   
-
-	                                          //PC1 作为模拟通道输入引脚                         
+                                          //PC1 作为模拟通道输入引脚                         
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;	
 	GPIO_Init(GPIOC, &GPIO_InitStructure);	
@@ -203,8 +310,8 @@ void  ADC_INIT(void)
  
 	while(ADC_GetCalibrationStatus(ADC1));	 //等待校准结束
  
-}	*/
-
+}	
+*/
 
 int Get_Adc(char ch)  //ADC值 
 {
@@ -239,32 +346,6 @@ int Get_Adc_Average (u32 ch,char count)
 	valueall+=temp_val[0];
 	return valueall/count;
 } 	 
-
-
- void TIM_Init(void)
-{
-  TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
-  NVIC_InitTypeDef NVIC_InitStructure;
-
-  RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
-
-  NVIC_InitStructure.NVIC_IRQChannel = TIM3_IRQn;
-  NVIC_InitStructure.NVIC_IRQChannelPriority = 0;
-  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-  NVIC_Init(&NVIC_InitStructure);
- 
-
-  TIM_TimeBaseStructure.TIM_Period = 2000;           // 自动重装载寄存器周期的值(计数值) 
-  TIM_TimeBaseStructure.TIM_Prescaler = (18000 - 1);	//时钟预分频数 
-  TIM_TimeBaseStructure.TIM_ClockDivision = 0;			//向上计数模式
-  TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
-
-  TIM_TimeBaseInit(TIM3, &TIM_TimeBaseStructure);
-
-  TIM_ClearFlag(TIM3, TIM_FLAG_Update);			        // 清除溢出中断标志 
-  TIM_ITConfig(TIM3,TIM_IT_Update,ENABLE);
-  TIM_Cmd(TIM3, ENABLE);
-}
 /*
 void TIM3_IRQHandler(void)
 {
@@ -407,11 +488,13 @@ static void SetPortDirection(void)
 	//turn off LED
     LED_G(0);	
 }
+
+/*
 void NVIC_Configuration(void)
 {
 	NVIC_InitTypeDef NVIC_InitStructure;
   
-    NVIC_InitStructure.NVIC_IRQChannel = USART1_IRQn;
+  NVIC_InitStructure.NVIC_IRQChannel = USART1_IRQn;
 	NVIC_InitStructure.NVIC_IRQChannelPriority =2;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
@@ -443,14 +526,16 @@ void NVIC_Configuration(void)
 	NVIC_Init(&NVIC_InitStructure);	  	
 
 }
-
+*/
 //--------------------------------------------------------------------------------------------------------------------------
 void uComOnChipInitial(void) 
-{
+{ 
         SetPortDirection();	
+        ADC_INIT();
         USART1_Init();
         TIM1_Configuration1();	  
-	 	TIM2_Configuration1();
-        TIM_Init(); 
+	    TIM2_Configuration1();
+   	    TIM3_Configuration1();
+      //  TIM_Init(); 
 }
 
