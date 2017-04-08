@@ -94,6 +94,8 @@ int pid(int nonce,int aim)
 int main(void)
 {
   uComOnChipInitial(); 
+  TIM_Cmd(TIM1, ENABLE);
+  TIM_CtrlPWMOutputs(TIM1, ENABLE); 
   while (1)
   {
 

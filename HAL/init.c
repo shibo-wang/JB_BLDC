@@ -370,12 +370,6 @@ static void SetPortDirection(void)
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 
-    //UVW GPIO OUT
-	GPIO_InitStructure.GPIO_Pin = GPIO_PIN_PWM_P_U | GPIO_PIN_PWM_P_V | GPIO_PIN_PWM_P_W ;
-	GPIO_Init(GPIO_PORT_PWM_P_UVW, &GPIO_InitStructure);
-	GPIO_InitStructure.GPIO_Pin = GPIO_PIN_PWM_N_U | GPIO_PIN_PWM_N_V | GPIO_PIN_PWM_N_W;
-	GPIO_Init(GPIO_PORT_PWM_N_UVW, &GPIO_InitStructure);
-	
   	//LED GPIO OUT
 	GPIO_InitStructure.GPIO_Pin = GPIO_PIN_LED_FLASH;
   	GPIO_Init(GPIO_PORT_LED_FLASH, &GPIO_InitStructure);
@@ -420,15 +414,12 @@ void config_HALL_RCC(void)
 void config_HALL_GPIO(void)
 {
   	GPIO_InitTypeDef GPIO_InitStructure;
-  	//HALL GPIO OUT
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;    
+  	//HALL GPIO IN
 	GPIO_InitStructure.GPIO_Pin = GPIO_PIN_HALL_U | GPIO_PIN_HALL_V;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_Init(GPIO_PORT_HALL_UV, &GPIO_InitStructure);
-
 	GPIO_InitStructure.GPIO_Pin = GPIO_PIN_HALL_W;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_Init(GPIO_PORT_HALL_W, &GPIO_InitStructure);	
 
 }
@@ -478,15 +469,49 @@ void config_HALL()
     config_HALL_EXTI();
 }
 
+void config_PWM_RCC()
+{
+    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA | RCC_AHBPeriph_GPIOB , ENABLE);
+}
+
+void config_PWM_GPIO()
+{
+  	GPIO_InitTypeDef GPIO_InitStructure;
+    //UVW GPIO OUT
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz; 
+    
+	GPIO_InitStructure.GPIO_Pin = GPIO_PIN_PWM_P_U | GPIO_PIN_PWM_P_V | GPIO_PIN_PWM_P_W ;
+	GPIO_Init(GPIO_PORT_PWM_P_UVW, &GPIO_InitStructure);
+	GPIO_InitStructure.GPIO_Pin = GPIO_PIN_PWM_N_U | GPIO_PIN_PWM_N_V | GPIO_PIN_PWM_N_W;
+	GPIO_Init(GPIO_PORT_PWM_N_UVW, &GPIO_InitStructure);
+}
+
+void config_PWM_TIM()
+{
+
+}
+
+
+
+void config_PWM()
+{
+    config_PWM_RCC();
+    config_PWM_GPIO();
+    config_PWM_TIM();
+}
+
 //--------------------------------------------------------------------------------------------------------------------------
 void uComOnChipInitial(void) 
 {
     config_HALL();
+    config_PWM();
+    SetPortDirection();	
+    TIM1_Configuration1();	
 #if 0     
-    NVIC_Configuration();
-    SetPortDirection();	   
+    NVIC_Configuration();   
     USART1_Init();
-    TIM1_Configuration1();	  
+      
     TIM2_Configuration1();
     TIM_Init(); 
 #endif
