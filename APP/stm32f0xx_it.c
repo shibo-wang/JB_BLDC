@@ -28,13 +28,13 @@ u16 AD_value;
 u16 Count;
 u16 aaa;
 bool LED_15;
-bool Direction;
+bool g_motor_direction;
 u16 g_HALL_state;
 u16 time=0;
 extern u16 motor_statue;
 extern unsigned int g_pwm_value;
 u16 My_PWM=1000;
-extern int state,state1,state2,state3,counter1,counter2,counter3,speed_1,check_run;
+extern int state,state1,state2,state3,g_HALL_intterupt_cnt,counter2,counter3,speed_1,check_run;
 extern u32 aim_speed;
 extern unsigned char LED_Code[16];
 extern int LED_Dis;
@@ -179,18 +179,46 @@ void update_bridge_state(void)
 	}
 }
 
+    u16 l_HALL_state_UV = 0;
+    u16 l_HALL_state_W = 0;
+u16 get_HALL_GPIO_state(void)
+{
+
+    u16 l_HALL_sate = 0;
+    l_HALL_state_UV = GPIO_ReadInputData(GPIO_PORT_HALL_UV);
+    l_HALL_state_W = GPIO_ReadInputData(GPIO_PORT_HALL_W);
+    if (l_HALL_state_UV & GPIO_PIN_HALL_U)
+    {
+        l_HALL_sate |= 0x04;
+    }
+
+    if (l_HALL_state_UV & GPIO_PIN_HALL_V)
+    {
+        l_HALL_sate |= 0x02;
+    }   
+
+    if (l_HALL_state_W & GPIO_PIN_HALL_W)
+    {
+        l_HALL_sate |= 0x01;
+    }
+    return l_HALL_sate;
+}
+
+void handle_HALL_interrupt(void)
+{
+    g_HALL_state = get_HALL_GPIO_state();
+    if(!g_motor_direction)
+    {   
+        g_HALL_state = 7 - g_HALL_state;
+    }
+    update_bridge_state();
+    g_HALL_intterupt_cnt++;
+
+}
 
 void EXTI0_1_IRQHandler(void)
  {
-  	g_HALL_state=GPIO_ReadInputData(GPIO_PORT_HALL_UV);
-	g_HALL_state=g_HALL_state&GPIO_PIN_HALL_U;
-	g_HALL_state=g_HALL_state>>1;			//U
-
-	//DisplayNumber4(0,0,g_HALL_state);
-	if(!Direction)g_HALL_state=7-g_HALL_state;
-	update_bridge_state();
-	counter1++;
-
+    handle_HALL_interrupt();
 	if(EXTI_GetITStatus(EXTI_Line1)!= RESET)
 	{
 		EXTI_ClearITPendingBit(EXTI_Line1);
@@ -200,24 +228,7 @@ void EXTI0_1_IRQHandler(void)
 
 void EXTI4_15_IRQHandler(void)
 {
-  	g_HALL_state=GPIO_ReadInputData(GPIO_PORT_HALL_UV);
-	g_HALL_state=g_HALL_state&GPIO_PIN_HALL_V;
-	if (g_HALL_state > 0)
-	{
-		g_HALL_state=g_HALL_state>>14;		//V
-	}
-
-  	g_HALL_state=GPIO_ReadInputData(GPIO_PORT_HALL_W);
-	g_HALL_state=g_HALL_state&GPIO_PIN_HALL_W;
-	if (g_HALL_state > 0)
-	{
-		g_HALL_state=g_HALL_state>>8;		//W
-	}
-
-	//DisplayNumber4(0,0,g_HALL_state);
-	if(!Direction)g_HALL_state=7-g_HALL_state;
-	update_bridge_state();
-	counter1++;
+	handle_HALL_interrupt();
 	if(EXTI_GetITStatus(EXTI_Line15)!= RESET)
 	{
 		EXTI_ClearITPendingBit(EXTI_Line15);

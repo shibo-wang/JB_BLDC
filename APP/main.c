@@ -31,11 +31,11 @@ int motor_statue=0;
 char startcnt=0;
 extern int My_PWM;
 extern int g_HALL_state,time;
-extern char Direction; 
+extern char g_motor_direction; 
 extern void TIM1_Configuration1(void);
 extern void update_bridge_state(void);
 
-int state,state1,state2,state3,counter1,counter2,counter3,speed_1,check_run,speed_code;
+int state,state1,state2,state3,g_HALL_intterupt_cnt,counter2,counter3,speed_1,check_run,speed_code;
 s32 aim_speed;
 short ADC_ConvertedValue[5]={0,0,0,0,0};
 //form main
@@ -93,7 +93,11 @@ int pid(int nonce,int aim)
 //=============================================================================
 int main(void)
 {
-  uComOnChipInitial();  
+  uComOnChipInitial(); 
+  while (1)
+  {
+
+  }
   printf("BY COLIN");
   printf("HELLO JBIKE TEST V1.0"); 
   LED_G(1);
@@ -122,11 +126,11 @@ int main(void)
 			time=0;
 			if(flagccw==0)
 		   {
-			  Direction=1; 		
+			  g_motor_direction=1; 		
 		   }
 		else
 		   {
-			  Direction=0;		  
+			  g_motor_direction=0;		  
 		   }
 		flagccw=~flagccw;
 		}	  

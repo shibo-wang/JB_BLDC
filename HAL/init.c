@@ -361,13 +361,12 @@ PUTCHAR_PROTOTYPE
 TIM_BDTRInitTypeDef TIM_BDTRInitStructure;
 TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
 TIM_OCInitTypeDef  TIM_OCInitStructure; 
-EXTI_InitTypeDef EXTI_InitStructure;
+
 
 static void SetPortDirection(void)
 {
   	GPIO_InitTypeDef GPIO_InitStructure;
-	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA | RCC_AHBPeriph_GPIOB , ENABLE);
-	
+
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 
@@ -381,52 +380,20 @@ static void SetPortDirection(void)
 	GPIO_InitStructure.GPIO_Pin = GPIO_PIN_LED_FLASH;
   	GPIO_Init(GPIO_PORT_LED_FLASH, &GPIO_InitStructure);
 	    
-  	//HALL GPIO OUT
-	GPIO_InitStructure.GPIO_Pin = GPIO_PIN_HALL_U | GPIO_PIN_HALL_V;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-	GPIO_Init(GPIO_PORT_HALL_UV, &GPIO_InitStructure);
-
-	GPIO_InitStructure.GPIO_Pin = GPIO_PIN_HALL_W;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-	GPIO_Init(GPIO_PORT_HALL_W, &GPIO_InitStructure);	
 	
-	//HALL INTERRUPT 
-	//HALL INTERRUPT 
-	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOA, EXTI_PinSource1);
- 	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOA, EXTI_PinSource15);
- 	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOB, EXTI_PinSource10);
- 
-	EXTI_InitStructure.EXTI_Line = EXTI_Line1|EXTI_Line15|EXTI_Line10;
-	EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
-	EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising_Falling;
-	EXTI_InitStructure.EXTI_LineCmd = ENABLE;
-	EXTI_Init(&EXTI_InitStructure);	
-
 	//turn off LED
-    LED_G(0);	
+    LED_G(0);	 
 }
 void NVIC_Configuration(void)
 {
+#if 0 
 	NVIC_InitTypeDef NVIC_InitStructure;
-  
+ 
     NVIC_InitStructure.NVIC_IRQChannel = USART1_IRQn;
 	NVIC_InitStructure.NVIC_IRQChannelPriority =2;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
-  
-  
-	NVIC_InitStructure.NVIC_IRQChannel = EXTI4_15_IRQn; 
-	NVIC_InitStructure.NVIC_IRQChannelPriority = 0;
-	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-	NVIC_Init(&NVIC_InitStructure);	  
-	NVIC_InitStructure.NVIC_IRQChannel = EXTI0_1_IRQn; 
-	NVIC_InitStructure.NVIC_IRQChannelPriority = 1;
-	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-	NVIC_Init(&NVIC_InitStructure);	 
 
-	
 	NVIC_InitStructure.NVIC_IRQChannel = TIM2_IRQn;
 	NVIC_InitStructure.NVIC_IRQChannelPriority = 1;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
@@ -441,16 +408,87 @@ void NVIC_Configuration(void)
 	NVIC_InitStructure.NVIC_IRQChannelPriority = 3;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&NVIC_InitStructure);	  	
+#endif    
 
+}
+
+void config_HALL_RCC(void)
+{
+	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA | RCC_AHBPeriph_GPIOB , ENABLE);
+}
+
+void config_HALL_GPIO(void)
+{
+  	GPIO_InitTypeDef GPIO_InitStructure;
+  	//HALL GPIO OUT
+	GPIO_InitStructure.GPIO_Pin = GPIO_PIN_HALL_U | GPIO_PIN_HALL_V;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_Init(GPIO_PORT_HALL_UV, &GPIO_InitStructure);
+
+	GPIO_InitStructure.GPIO_Pin = GPIO_PIN_HALL_W;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_Init(GPIO_PORT_HALL_W, &GPIO_InitStructure);	
+
+}
+
+void config_HALL_NVIC(void)
+{
+	NVIC_InitTypeDef NVIC_InitStructure;
+
+	NVIC_InitStructure.NVIC_IRQChannel = EXTI4_15_IRQn; 
+	NVIC_InitStructure.NVIC_IRQChannelPriority = 0;
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+	NVIC_Init(&NVIC_InitStructure);	  
+	NVIC_InitStructure.NVIC_IRQChannel = EXTI0_1_IRQn; 
+	NVIC_InitStructure.NVIC_IRQChannelPriority = 1;
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+	NVIC_Init(&NVIC_InitStructure);	 
+
+}
+
+void config_HALL_EXTI(void)
+{
+    EXTI_InitTypeDef EXTI_InitStructure;
+	//clear interrupt flag
+    EXTI_ClearITPendingBit(EXTI_Line1);
+    EXTI_ClearITPendingBit(EXTI_Line15);
+    EXTI_ClearITPendingBit(EXTI_Line10);
+    //config interrupt
+	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOA, EXTI_PinSource1);
+ 	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOA, EXTI_PinSource15);
+ 	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOB, EXTI_PinSource10);
+ 
+	EXTI_InitStructure.EXTI_Line = EXTI_Line1|EXTI_Line15|EXTI_Line10;
+	EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
+	EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising_Falling;
+	EXTI_InitStructure.EXTI_LineCmd = ENABLE;
+	EXTI_Init(&EXTI_InitStructure);	
+}
+
+
+
+
+void config_HALL()
+{
+    config_HALL_RCC();
+    config_HALL_GPIO();
+    config_HALL_NVIC();
+    config_HALL_EXTI();
 }
 
 //--------------------------------------------------------------------------------------------------------------------------
 void uComOnChipInitial(void) 
 {
-    SetPortDirection();	
+    config_HALL();
+#if 0     
+    NVIC_Configuration();
+    SetPortDirection();	   
     USART1_Init();
     TIM1_Configuration1();	  
     TIM2_Configuration1();
     TIM_Init(); 
+#endif
 }
 
