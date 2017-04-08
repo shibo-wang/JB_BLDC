@@ -472,13 +472,14 @@ void config_HALL()
 void config_PWM_RCC()
 {
     RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA | RCC_AHBPeriph_GPIOB , ENABLE);
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1, ENABLE);
 }
 
 void config_PWM_GPIO()
 {
   	GPIO_InitTypeDef GPIO_InitStructure;
     //UVW GPIO OUT
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz; 
     
 	GPIO_InitStructure.GPIO_Pin = GPIO_PIN_PWM_P_U | GPIO_PIN_PWM_P_V | GPIO_PIN_PWM_P_W ;
@@ -489,6 +490,37 @@ void config_PWM_GPIO()
 
 void config_PWM_TIM()
 {
+    /* TIM1 Registers reset */
+    /* Enable TIM1 clock */
+    
+    TIM_DeInit(TIM1);
+    TIM_TimeBaseStructInit(&TIM1_TimeBaseStructure);
+    /* Time Base configuration */
+    TIM1_TimeBaseStructure.TIM_Prescaler = 0x0;
+    TIM1_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
+    TIM1_TimeBaseStructure.TIM_Period = PWM_PERIOD;
+    TIM1_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV2;
+  
+    // Initial condition is REP=0 to set the UPDATE only on the underflow
+    TIM1_TimeBaseStructure.TIM_RepetitionCounter = REP_RATE;
+    TIM_TimeBaseInit(TIM1, &TIM1_TimeBaseStructure);
+  
+    TIM_OCStructInit(&TIM1_OCInitStructure);
+    /* Channel 1, 2,3 in PWM mode */
+    TIM1_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1; 
+    TIM1_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable; 
+    //  TIM1_OCInitStructure.TIM_OutputNState = TIM_OutputNState_Enable;                  
+    TIM1_OCInitStructure.TIM_Pulse = 0x505; //dummy value
+    TIM1_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High; 
+ 
+    TIM_OC1Init(TIM1, &TIM1_OCInitStructure); 
+    TIM_OC2Init(TIM1, &TIM1_OCInitStructure);
+    TIM_OC3Init(TIM1, &TIM1_OCInitStructure);
+	  
+    /* TIM1 counter enable */
+	TIM_ARRPreloadConfig(TIM1, ENABLE); //使能TIM1在ARR上的预装载寄存器
+	TIM_CtrlPWMOutputs(TIM1, DISABLE); 
+    TIM_Cmd(TIM1, DISABLE);
 
 }
 
@@ -506,12 +538,11 @@ void uComOnChipInitial(void)
 {
     config_HALL();
     config_PWM();
-    SetPortDirection();	
-    TIM1_Configuration1();	
+    SetPortDirection();	    
 #if 0     
     NVIC_Configuration();   
     USART1_Init();
-      
+    TIM1_Configuration1();	  
     TIM2_Configuration1();
     TIM_Init(); 
 #endif
