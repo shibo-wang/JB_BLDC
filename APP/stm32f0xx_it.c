@@ -189,11 +189,11 @@ void update_bridge_state(void)
 	}
 }
 
-    u16 l_HALL_state_UV = 0;
-    u16 l_HALL_state_W = 0;
+
 u16 get_HALL_GPIO_state(void)
 {
-
+    u16 l_HALL_state_UV = 0;
+    u16 l_HALL_state_W = 0;
     u16 l_HALL_sate = 0;
     l_HALL_state_UV = GPIO_ReadInputData(GPIO_PORT_HALL_UV);
     l_HALL_state_W = GPIO_ReadInputData(GPIO_PORT_HALL_W);

@@ -95,8 +95,8 @@ int main(void)
 {
   uComOnChipInitial(); 
   SysTick_Config(48000); 
-  TIM_Cmd(TIM1, ENABLE);
-  TIM_CtrlPWMOutputs(TIM1, ENABLE); 
+  //TIM_Cmd(TIM1, ENABLE);
+  //TIM_CtrlPWMOutputs(TIM1, ENABLE); 
   while (1)
   {
 	//LED_G(0);
