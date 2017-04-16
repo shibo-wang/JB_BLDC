@@ -307,9 +307,9 @@ int Get_Adc_Average (u32 ch,char count)
   NVIC_Init(&NVIC_InitStructure);
  
 
-  TIM_TimeBaseStructure.TIM_Period = 2000;           // 自动重装载寄存器周期的值(计数值) 
-  TIM_TimeBaseStructure.TIM_Prescaler = (18000 - 1);	//时钟预分频数 
-  TIM_TimeBaseStructure.TIM_ClockDivision = 0;			//向上计数模式
+  TIM_TimeBaseStructure.TIM_Period = 10;           // 自动重装载寄存器周期的值(计数值) 
+  TIM_TimeBaseStructure.TIM_Prescaler = 2399;	//时钟预分频数 48M/(23999+1)/10=200HZ
+  TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;			//向上计数模式
   TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
 
   TIM_TimeBaseInit(TIM3, &TIM_TimeBaseStructure);
@@ -418,14 +418,14 @@ TIM_OCInitTypeDef  TIM_OCInitStructure;
 
 static void SetPortDirection(void)
 {
-  	GPIO_InitTypeDef GPIO_InitStructure;
+  GPIO_InitTypeDef GPIO_InitStructure;
 
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 
   	//LED GPIO OUT
 	GPIO_InitStructure.GPIO_Pin = GPIO_PIN_LED_FLASH;
-  	GPIO_Init(GPIO_PORT_LED_FLASH, &GPIO_InitStructure);
+  GPIO_Init(GPIO_PORT_LED_FLASH, &GPIO_InitStructure);
 	    
 	
 	//turn off LED
@@ -436,7 +436,7 @@ void NVIC_Configuration(void)
 #if 0 
 	NVIC_InitTypeDef NVIC_InitStructure;
  
-    NVIC_InitStructure.NVIC_IRQChannel = USART1_IRQn;
+  NVIC_InitStructure.NVIC_IRQChannel = USART1_IRQn;
 	NVIC_InitStructure.NVIC_IRQChannelPriority =2;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
@@ -466,7 +466,7 @@ void config_HALL_RCC(void)
 
 void config_HALL_GPIO(void)
 {
-  	GPIO_InitTypeDef GPIO_InitStructure;
+  GPIO_InitTypeDef GPIO_InitStructure;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;    
   	//HALL GPIO IN
@@ -480,17 +480,114 @@ void config_HALL_GPIO(void)
 void config_HALL_NVIC(void)
 {
 	NVIC_InitTypeDef NVIC_InitStructure;
-
 	NVIC_InitStructure.NVIC_IRQChannel = EXTI4_15_IRQn; 
-	NVIC_InitStructure.NVIC_IRQChannelPriority = 0;
+	NVIC_InitStructure.NVIC_IRQChannelPriority = 1; 
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&NVIC_InitStructure);	  
 	NVIC_InitStructure.NVIC_IRQChannel = EXTI0_1_IRQn; 
-	NVIC_InitStructure.NVIC_IRQChannelPriority = 1;
+	NVIC_InitStructure.NVIC_IRQChannelPriority = 0;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&NVIC_InitStructure);	 
 
 }
+
+/**
+  * @brief  Configure PA0 in interrupt mode
+  * @param  None
+  * @retval None
+  */
+static void EXTI0_Config(void)
+{
+  GPIO_InitTypeDef GPIO_InitStructure;
+  EXTI_InitTypeDef EXTI_InitStructure;
+  NVIC_InitTypeDef NVIC_InitStructure;
+  /* Enable GPIOA clock */
+  RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA, ENABLE);
+
+  /* Configure PA0 pin as input floating */
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
+  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_DOWN;
+  GPIO_Init(GPIOA, &GPIO_InitStructure);
+
+  /* Enable SYSCFG clock */
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
+  /* Connect EXTI0 Line to PA0 pin */
+  SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOA, EXTI_PinSource1);
+
+  /* Configure EXTI0 line */
+  EXTI_InitStructure.EXTI_Line = EXTI_Line1;
+  EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
+  EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;
+  EXTI_InitStructure.EXTI_LineCmd = ENABLE;
+  EXTI_Init(&EXTI_InitStructure);
+
+  /* Enable and set EXTI0 Interrupt */
+  NVIC_InitStructure.NVIC_IRQChannel = EXTI0_1_IRQn;
+  NVIC_InitStructure.NVIC_IRQChannelPriority = 0x00;
+  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+  NVIC_Init(&NVIC_InitStructure);
+}
+
+
+/**
+  * @brief  Configure PC13 in interrupt mode
+  * @param  None
+  * @retval None
+  */
+static void EXTI4_15_Config(void)
+{
+  GPIO_InitTypeDef GPIO_InitStructure;
+  EXTI_InitTypeDef EXTI_InitStructure;
+  NVIC_InitTypeDef NVIC_InitStructure;
+  /* Enable GPIOC clock */
+  RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOB, ENABLE);
+
+  /* Enable SYSCFG clock */
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
+
+  /* Configure PC9 pin as input floating */
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
+  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+  GPIO_Init(GPIOB, &GPIO_InitStructure);
+  
+  /* Connect EXTI9 Line to PC9 pin */
+  SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOB, EXTI_PinSource10);
+  
+  /* Configure EXTI9 line */
+  EXTI_InitStructure.EXTI_Line = EXTI_Line10;
+  EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
+  EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;
+  EXTI_InitStructure.EXTI_LineCmd = ENABLE;
+  EXTI_Init(&EXTI_InitStructure);
+ 
+  #if 1	 
+  /* Configure PC8 and PC13 pins as input floating */
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_15;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
+  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+  GPIO_Init(GPIOA, &GPIO_InitStructure);
+  
+   /* Connect EXTI8 Line to PC8 pin */
+  SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOA, EXTI_PinSource15);
+  
+  /* Configure EXTI8 line */
+  EXTI_InitStructure.EXTI_Line = EXTI_Line15;  
+  EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
+  EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;
+  EXTI_InitStructure.EXTI_LineCmd = ENABLE;
+  EXTI_Init(&EXTI_InitStructure);
+  
+  #endif
+  /* Enable and set EXTI4_15 Interrupt */
+  NVIC_InitStructure.NVIC_IRQChannel = EXTI4_15_IRQn;
+  NVIC_InitStructure.NVIC_IRQChannelPriority = 0x00;
+  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+  NVIC_Init(&NVIC_InitStructure);
+
+}
+
 
 void config_HALL_EXTI(void)
 {
@@ -507,7 +604,7 @@ void config_HALL_EXTI(void)
 	EXTI_InitStructure.EXTI_Line = EXTI_Line1|EXTI_Line15|EXTI_Line10;
 	EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
 	EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising_Falling;
-	EXTI_InitStructure.EXTI_LineCmd = ENABLE;
+	EXTI_InitStructure.EXTI_LineCmd =ENABLE;// ENABLE;
 	EXTI_Init(&EXTI_InitStructure);	
 }
 
@@ -516,10 +613,14 @@ void config_HALL_EXTI(void)
 
 void config_HALL()
 {
+     EXTI0_Config();
+     EXTI4_15_Config();
+ #if 1   
     config_HALL_RCC();
     config_HALL_GPIO();
+    config_HALL_EXTI();	
     config_HALL_NVIC();
-    config_HALL_EXTI();
+ #endif
 }
 
 void config_PWM_RCC()
@@ -683,6 +784,45 @@ void config_PWM_new()
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1, ENABLE);
 	 
 	TIM_DeInit(TIM1);  //将外设 TIM1 寄存器重设为缺省值；
+
+  #if 0  
+	TIM1_TimeBaseInitStructure.TIM_Period = PWM_PERIOD;//TIM1_Period设置了在下一个更新事件装入活动的自动重装载寄存器周期的值——0xFFFF;
+	TIM1_TimeBaseInitStructure.TIM_Prescaler = 0x0;//TIM1_Prescaler设置了用来作为 TIM1时钟频率除数的预分频值。它的取值必须在 0x0000 和0xFFFF 之间。 
+	TIM1_TimeBaseInitStructure.TIM_CounterMode = TIM_CounterMode_Up;//TIM1_CounterMode 选择了计数器模式——向上计数；
+	//原书中值为0xFFFF，胡扯嘛，f=TIM1CLK/(TIM1_Period+1)，如果TIM1的时钟频率为72MHz，则TIM1_Period应为4096左右，即0x1000。
+	TIM1_TimeBaseInitStructure.TIM_ClockDivision = TIM_CKD_DIV2;//TIM1_ClockDivision 设置了时钟分割；
+	TIM1_TimeBaseInitStructure.TIM_RepetitionCounter = REP_RATE;
+	TIM_TimeBaseInit(TIM1,&TIM1_TimeBaseInitStructure);//根据 TIM1_TIM1BaseInitStruct 中指定的参数初始化 TIM1 的时间基数单位
+	 
+	TIM_ARRPreloadConfig(TIM1, ENABLE);
+	 
+	TIM1_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;//TIM1_OCMode 选择定时器模式			 
+	TIM1_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable; //TIM1_OutputState选择输出比较状态
+	TIM1_OCInitStructure.TIM_Pulse = 0x505; //TIM1_Pulse设置了待装入捕获比较寄存器的脉冲值——占空比为50%。
+	TIM1_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High; //TIM1_OCPolarity输出极性高；
+	//原书中OCP和OCNP均设置为Low，看不出互补特性
+	TIM_OC1Init(TIM1,&TIM1_OCInitStructure);	 
+	TIM_OC2Init(TIM1,&TIM1_OCInitStructure);	 
+	TIM_OC3Init(TIM1,&TIM1_OCInitStructure);
+	 
+
+ 
+   TIM_OC1PreloadConfig(TIM1, TIM_OCPreload_Enable);
+ /* Enables the TIM1 Preload on CC2 Register */
+   TIM_OC2PreloadConfig(TIM1, TIM_OCPreload_Enable);
+ /* Enables the TIM1 Preload on CC3 Register */
+   TIM_OC3PreloadConfig(TIM1, TIM_OCPreload_Enable);
+ /* Enables the TIM1 Preload on CC4 Register */
+   TIM_OC4PreloadConfig(TIM1, TIM_OCPreload_Enable);
+	 
+	 
+	TIM_ARRPreloadConfig(TIM1, ENABLE); //使能TIM3在ARR上的预装载寄存器
+	TIM_Cmd(TIM1,DISABLE);		 //TIM1 使能	 
+	TIM_CtrlPWMOutputs(TIM1,DISABLE);		//使能外设 TIM1 的主输出
+#endif
+
+
+#if 1
 	TIM1_TimeBaseInitStructure.TIM_Period = 1000-1;//TIM1_Period设置了在下一个更新事件装入活动的自动重装载寄存器周期的值——0xFFFF;
 	TIM1_TimeBaseInitStructure.TIM_Prescaler = 72-1;//TIM1_Prescaler设置了用来作为 TIM1时钟频率除数的预分频值。它的取值必须在 0x0000 和0xFFFF 之间。 
 	TIM1_TimeBaseInitStructure.TIM_CounterMode = TIM_CounterMode_Up;//TIM1_CounterMode 选择了计数器模式——向上计数；
@@ -701,8 +841,7 @@ void config_PWM_new()
 	TIM1_OCInitStructure.TIM_OCNPolarity = TIM_OCPolarity_Low; //TIM1互补输出极性为高
 	//原书中OCP和OCNP均设置为Low，看不出互补特性
 	TIM1_OCInitStructure.TIM_OCIdleState = TIM_OCIdleState_Reset; //TIM1_OCIdleState选择空闲状态下的非工作状态(MOE=0时设置TIM1输出比较空闲状态)
-	TIM1_OCInitStructure.TIM_OCNIdleState = TIM_OCIdleState_Reset; //MOE = 0时重置互补输出的输出比较空闲状态
-	 
+	TIM1_OCInitStructure.TIM_OCNIdleState = TIM_OCIdleState_Reset; //MOE = 0时重置互补输出的输出比较空闲状态	 
 	TIM_OC1Init(TIM1,&TIM1_OCInitStructure);
 	 
 	TIM1_OCInitStructure.TIM_Pulse = 500;  //设置通道2输出占空比为25%
@@ -724,6 +863,8 @@ void config_PWM_new()
 	TIM_Cmd(TIM1,ENABLE);		 //TIM1 使能
 	 
 	TIM_CtrlPWMOutputs(TIM1,ENABLE);		//使能外设 TIM1 的主输出
+#endif
+
 
 }
 
@@ -812,24 +953,25 @@ void config_PWM()
     config_PWM_GPIO();
 //	config_PWM_GPIO_new();
 
-//    config_PWM_TIM();
-	config_PWM_new();
+//  config_PWM_TIM();=
+	  config_PWM_new();
 //	config_PWM_2();
 
 
 }
 void uComOnChipInitial(void) 
 {
-
-//	config_HALL();
+    USART1_Init();
+   	config_HALL();
     config_PWM();
-    SetPortDirection();	    
+    SetPortDirection();	 
+	TIM_Init(); 
 #if 0     
     NVIC_Configuration();   
-    USART1_Init();
+  
     TIM1_Configuration1();	  
     TIM2_Configuration1();
-    TIM_Init(); 
+  
 #endif
 }
 

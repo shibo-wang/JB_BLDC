@@ -11,10 +11,10 @@ volatile struct {
 		unsigned Fault 	  :		1;
 		}Flags;
 
-unsigned int DesiredSpeed=500;
+unsigned int DesiredSpeed=1000;
 unsigned int ActualSpeed;
 
-unsigned int g_pwm_value=500;
+unsigned int g_pwm_value=500;//500
 unsigned int T3Count;
 unsigned int ActualSpeed5[3];
 int ADC_DMABUF;
@@ -30,7 +30,7 @@ int ekSpeed=0;
 int motor_statue=0;
 char startcnt=0;
 extern int My_PWM;
-extern int g_HALL_state,time;
+extern u16 g_HALL_state,time;
 extern char g_motor_direction; 
 extern void TIM1_Configuration1(void);
 extern void update_bridge_state(void);
@@ -95,21 +95,45 @@ int main(void)
 {
   uComOnChipInitial(); 
   SysTick_Config(48000); 
-  //TIM_Cmd(TIM1, ENABLE);
-  //TIM_CtrlPWMOutputs(TIM1, ENABLE); 
+  TIM_Cmd(TIM1, ENABLE);
+  TIM_CtrlPWMOutputs(TIM1, ENABLE); 
   while (1)
-  {
-	//LED_G(0);
+  { 
+   //   LED_G(0);
+	  if(startcnt<36)  //换相6次后启动
+		  {         
+		  if(time>10)
+		   {
+            
+			  update_bridge_state();  
+	     
+			  g_HALL_state++;
+			  if(g_HALL_state>6) g_HALL_state=1;        		       
+	      time=0; 
+		  }    
+		   startcnt++; 
+		  }
+    
+		else
+     
+		  {
+        
+			  startcnt=37;
+			  #if 1 
+			  My_PWM=2000;  
+			  for(i=0;i<100000;i++);       
+			  My_PWM+=pid(speed_1,aim_speed)/((speed_1/My_PWM)+1);	       
+			  if(My_PWM<=0) 			  
+			  My_PWM=0;
+			  if(My_PWM>5000)			  
+			  My_PWM=5000;
+			#endif
+	 
+			}
+  
+
   }
-  printf("BY COLIN");
-  printf("HELLO JBIKE TEST V1.0"); 
-  LED_G(1);
- //初始化直接打开定时器测试
- //if(keytemp==1)
-	{		  TIM_Cmd(TIM1, ENABLE);
-		    TIM_CtrlPWMOutputs(TIM1, ENABLE); 
-				startcnt=0;	
-	}		
+
   while(1)
   { 	
   // keytemp= key_con(); 
@@ -145,7 +169,7 @@ int main(void)
 	 { 
 		update_bridge_state();
 		g_HALL_state++;
-	  if(	g_HALL_state>6) 	g_HALL_state=1;
+	  if(g_HALL_state>6) 	g_HALL_state=1;
 		time=0;
 	}
 	 startcnt++; 

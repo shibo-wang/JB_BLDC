@@ -228,7 +228,7 @@ void handle_HALL_interrupt(void)
 
 void EXTI0_1_IRQHandler(void)
  {
-  //  handle_HALL_interrupt();
+    handle_HALL_interrupt();
 	if(EXTI_GetITStatus(EXTI_Line1)!= RESET)
 	{
 		EXTI_ClearITPendingBit(EXTI_Line1);
@@ -238,14 +238,16 @@ void EXTI0_1_IRQHandler(void)
 
 void EXTI4_15_IRQHandler(void)
 {
-//	handle_HALL_interrupt();
+	handle_HALL_interrupt();
 	if(EXTI_GetITStatus(EXTI_Line15)!= RESET)
 	{
 		EXTI_ClearITPendingBit(EXTI_Line15);
+  
 	}
 	if(EXTI_GetITStatus(EXTI_Line10)!= RESET)
 	{
 		EXTI_ClearITPendingBit(EXTI_Line10);
+
 	}
 
 }
@@ -264,7 +266,9 @@ void TIM3_IRQHandler(void)
     if (TIM_GetITStatus(TIM3, TIM_IT_Update) != RESET)
 	{
      TIM_ClearITPendingBit(TIM3, TIM_IT_Update);
-		if(GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_2)==0)
+	 time++;
+ #if 0
+if(GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_2)==0)
 		{
 			 Key_Test1++;
 			 if(Key_Test1>50)
@@ -292,6 +296,7 @@ void TIM3_IRQHandler(void)
 		} 		
 		if(GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_3))
 			Key_Test2=0;	
+		#endif
 	}
 }
 
