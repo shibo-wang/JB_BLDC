@@ -462,6 +462,8 @@ void NVIC_Configuration(void)
 void config_HALL_RCC(void)
 {
 	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA | RCC_AHBPeriph_GPIOB , ENABLE);
+    /* Enable SYSCFG clock */
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
 }
 
 void config_HALL_GPIO(void)
@@ -491,103 +493,6 @@ void config_HALL_NVIC(void)
 
 }
 
-/**
-  * @brief  Configure PA0 in interrupt mode
-  * @param  None
-  * @retval None
-  */
-static void EXTI0_Config(void)
-{
-  GPIO_InitTypeDef GPIO_InitStructure;
-  EXTI_InitTypeDef EXTI_InitStructure;
-  NVIC_InitTypeDef NVIC_InitStructure;
-  /* Enable GPIOA clock */
-  RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA, ENABLE);
-
-  /* Configure PA0 pin as input floating */
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_DOWN;
-  GPIO_Init(GPIOA, &GPIO_InitStructure);
-
-  /* Enable SYSCFG clock */
-  RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
-  /* Connect EXTI0 Line to PA0 pin */
-  SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOA, EXTI_PinSource1);
-
-  /* Configure EXTI0 line */
-  EXTI_InitStructure.EXTI_Line = EXTI_Line1;
-  EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
-  EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;
-  EXTI_InitStructure.EXTI_LineCmd = ENABLE;
-  EXTI_Init(&EXTI_InitStructure);
-
-  /* Enable and set EXTI0 Interrupt */
-  NVIC_InitStructure.NVIC_IRQChannel = EXTI0_1_IRQn;
-  NVIC_InitStructure.NVIC_IRQChannelPriority = 0x00;
-  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-  NVIC_Init(&NVIC_InitStructure);
-}
-
-
-/**
-  * @brief  Configure PC13 in interrupt mode
-  * @param  None
-  * @retval None
-  */
-static void EXTI4_15_Config(void)
-{
-  GPIO_InitTypeDef GPIO_InitStructure;
-  EXTI_InitTypeDef EXTI_InitStructure;
-  NVIC_InitTypeDef NVIC_InitStructure;
-  /* Enable GPIOC clock */
-  RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOB, ENABLE);
-
-  /* Enable SYSCFG clock */
-  RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
-
-  /* Configure PC9 pin as input floating */
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
-  GPIO_Init(GPIOB, &GPIO_InitStructure);
-  
-  /* Connect EXTI9 Line to PC9 pin */
-  SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOB, EXTI_PinSource10);
-  
-  /* Configure EXTI9 line */
-  EXTI_InitStructure.EXTI_Line = EXTI_Line10;
-  EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
-  EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;
-  EXTI_InitStructure.EXTI_LineCmd = ENABLE;
-  EXTI_Init(&EXTI_InitStructure);
- 
-  #if 1	 
-  /* Configure PC8 and PC13 pins as input floating */
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_15;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
-  GPIO_Init(GPIOA, &GPIO_InitStructure);
-  
-   /* Connect EXTI8 Line to PC8 pin */
-  SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOA, EXTI_PinSource15);
-  
-  /* Configure EXTI8 line */
-  EXTI_InitStructure.EXTI_Line = EXTI_Line15;  
-  EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
-  EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;
-  EXTI_InitStructure.EXTI_LineCmd = ENABLE;
-  EXTI_Init(&EXTI_InitStructure);
-  
-  #endif
-  /* Enable and set EXTI4_15 Interrupt */
-  NVIC_InitStructure.NVIC_IRQChannel = EXTI4_15_IRQn;
-  NVIC_InitStructure.NVIC_IRQChannelPriority = 0x00;
-  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-  NVIC_Init(&NVIC_InitStructure);
-
-}
-
 
 void config_HALL_EXTI(void)
 {
@@ -613,14 +518,11 @@ void config_HALL_EXTI(void)
 
 void config_HALL()
 {
-     EXTI0_Config();
-     EXTI4_15_Config();
- #if 1   
+  
     config_HALL_RCC();
     config_HALL_GPIO();
     config_HALL_EXTI();	
     config_HALL_NVIC();
- #endif
 }
 
 void config_PWM_RCC()
