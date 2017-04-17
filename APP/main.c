@@ -105,26 +105,25 @@ int main(void)
   while (1)
   { 
    //   LED_G(0);
-	  if(startcnt<36)  //换相6次后启动
-		  {         
-		  if(time>10)
-		   {
-            
-			  update_bridge_state();  
-	     
-			  g_HALL_state++;
-			  if(g_HALL_state>6) g_HALL_state=1;        		       
-	      time=0; 
-		  }    
-		   startcnt++; 
-		  }
-    
-		else
-     
-		  {
+	    if(startcnt<36)  //换相6次后启动
+        {         
+		    if(time>10)
+		    {
+			    update_bridge_state();     
+			    g_HALL_state++;
+			    if(g_HALL_state>6) 
+                {         
+                    g_HALL_state=1;                      
+                 }
+	            time=0; 
+		    }    
+		    startcnt++; 
+        }
+		else     
+        {
         
 			  startcnt=37;
-			  #if 1 
+			  #if 0 
 			  My_PWM=2000;  
 			  for(i=0;i<100000;i++);       
 			  My_PWM+=pid(speed_1,aim_speed)/((speed_1/My_PWM)+1);	       
@@ -134,7 +133,7 @@ int main(void)
 			  My_PWM=5000;
 			#endif
 	 
-			}
+        }
   
 
   }
