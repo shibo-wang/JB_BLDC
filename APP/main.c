@@ -14,7 +14,7 @@ volatile struct {
 unsigned int DesiredSpeed=1000;
 unsigned int ActualSpeed;
 
-unsigned int g_pwm_value=500;//500
+unsigned int g_pwm_value=PWM_MIN_VALUE;//500
 unsigned int T3Count;
 unsigned int ActualSpeed5[3];
 int ADC_DMABUF;
@@ -85,6 +85,12 @@ int pid(int nonce,int aim)
 	ek_1=ek;
 	return (uk);
 }
+
+void enable_PWM_TIM()
+{
+    TIM_Cmd(TIM1, ENABLE);
+    TIM_CtrlPWMOutputs(TIM1, ENABLE); 
+}
 //=============================================================================
 //文件名称：main
 //功能概要：主函数
@@ -95,8 +101,7 @@ int main(void)
 {
   uComOnChipInitial(); 
   SysTick_Config(48000); 
-  TIM_Cmd(TIM1, ENABLE);
-  TIM_CtrlPWMOutputs(TIM1, ENABLE); 
+  enable_PWM_TIM();
   while (1)
   { 
    //   LED_G(0);

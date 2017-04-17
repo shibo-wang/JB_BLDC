@@ -27,17 +27,16 @@
  TIM_OCInitTypeDef TIM1_OCInitStructure;
  TIM_BDTRInitTypeDef TIM1_BDTRInitStructure;
  /////////////////////// PWM Peripheral Input clock ////////////////////////////
-#define CKTIM	((u32)72000000uL) 	/* Silicon running at 72MHz Resolution: 1Hz */
+#define CKTIM	((u32)8000000uL) 	/* Silicon running at 72MHz Resolution: 1Hz */
 
 #define PWM_PRSC ((u8)0)
 /****	Power devices switching frequency  ****/
-#define PWM_FREQ ((u16) 14400) // in Hz  (N.b.: pattern type is center aligned)
+#define PWM_FREQ ((u16) 10000) // in Hz  (N.b.: pattern type is center aligned)
 /* Resolution: 1Hz */                            
-#define PWM_PERIOD ((u16) (CKTIM / (u32)(2 * PWM_FREQ *(PWM_PRSC+1)))) 
+#define PWM_PERIOD ((u16) (CKTIM / (u32)( PWM_FREQ *(PWM_PRSC+1)))) 
 	
 /****	ADC IRQ-HANDLER frequency, related to PWM  ****/
 #define REP_RATE (0)  	// (N.b): Internal current loop is performed every
-#define CKTIM	((u32)72000000uL) 	/* Silicon running at 72MHz Resolution: 1Hz */
 /****    Deadtime Value   ****/
 #define DEADTIME_NS	((u16) 800)  //in nsec; range is [0...3500]
 ////////////////////////////// Deadtime Value /////////////////////////////////
@@ -531,35 +530,6 @@ void config_PWM_RCC()
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1, ENABLE);
 }
 
-void config_PWM_GPIO_new()
-{
-	GPIO_InitTypeDef GPIO_InitStructure;
-	
-	/* GPIOA, GPIOB and GPIOE Clocks enable */
-	RCC_AHBPeriphClockCmd( RCC_AHBPeriph_GPIOA | RCC_AHBPeriph_GPIOB, ENABLE);
-	
-	/* GPIOA Configuration: Channel 1, 2, 3, 4 and Channel 1N as alternate function push-pull */
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8 | GPIO_Pin_9 | GPIO_Pin_10;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP ;
-	GPIO_Init(GPIOA, &GPIO_InitStructure);
-	
-	GPIO_PinAFConfig(GPIOA, GPIO_PinSource8, GPIO_AF_2);
-	GPIO_PinAFConfig(GPIOA, GPIO_PinSource9, GPIO_AF_2);
-	GPIO_PinAFConfig(GPIOA, GPIO_PinSource10, GPIO_AF_2);
-
-#if 0	  
-	/* GPIOB Configuration: Channel 2N and 3N as alternate function push-pull */
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1;
-	GPIO_Init(GPIOB, &GPIO_InitStructure); 
-	
-	GPIO_PinAFConfig(GPIOB, GPIO_PinSource0, GPIO_AF_2); 
-	GPIO_PinAFConfig(GPIOB, GPIO_PinSource1, GPIO_AF_2);
-#endif
-}
-
 
 
 void config_PWM_GPIO()
@@ -721,15 +691,13 @@ void config_PWM_new()
 	TIM_ARRPreloadConfig(TIM1, ENABLE); //使能TIM3在ARR上的预装载寄存器
 	TIM_Cmd(TIM1,DISABLE);		 //TIM1 使能	 
 	TIM_CtrlPWMOutputs(TIM1,DISABLE);		//使能外设 TIM1 的主输出
-#endif
-
-
-#if 1
-	TIM1_TimeBaseInitStructure.TIM_Period = 1000-1;//TIM1_Period设置了在下一个更新事件装入活动的自动重装载寄存器周期的值——0xFFFF;
-	TIM1_TimeBaseInitStructure.TIM_Prescaler = 72-1;//TIM1_Prescaler设置了用来作为 TIM1时钟频率除数的预分频值。它的取值必须在 0x0000 和0xFFFF 之间。 
+#else
+	TIM1_TimeBaseInitStructure.TIM_Period = PWM_PERIOD;//TIM1_Period设置了在下一个更新事件装入活动的自动重装载寄存器周期的值——0xFFFF;
+	//TIM1_TimeBaseInitStructure.TIM_Period = (SystemCoreClock / 10000 ) - 1;;//TIM1_Period设置了在下一个更新事件装入活动的自动重装载寄存器周期的值——0xFFFF;
+	TIM1_TimeBaseInitStructure.TIM_Prescaler = 0;//TIM1_Prescaler设置了用来作为 TIM1时钟频率除数的预分频值。它的取值必须在 0x0000 和0xFFFF 之间。 
 	TIM1_TimeBaseInitStructure.TIM_CounterMode = TIM_CounterMode_Up;//TIM1_CounterMode 选择了计数器模式——向上计数；
 	//原书中值为0xFFFF，胡扯嘛，f=TIM1CLK/(TIM1_Period+1)，如果TIM1的时钟频率为72MHz，则TIM1_Period应为4096左右，即0x1000。
-	TIM1_TimeBaseInitStructure.TIM_ClockDivision = 0x0;//TIM1_ClockDivision 设置了时钟分割；
+	TIM1_TimeBaseInitStructure.TIM_ClockDivision = 0;//TIM1_ClockDivision 设置了时钟分割；
 	TIM1_TimeBaseInitStructure.TIM_RepetitionCounter = 0;
 	TIM_TimeBaseInit(TIM1,&TIM1_TimeBaseInitStructure);//根据 TIM1_TIM1BaseInitStruct 中指定的参数初始化 TIM1 的时间基数单位
 	 
@@ -749,7 +717,7 @@ void config_PWM_new()
 	TIM1_OCInitStructure.TIM_Pulse = 500;  //设置通道2输出占空比为25%
 	TIM_OC2Init(TIM1,&TIM1_OCInitStructure);
 	 
-	TIM1_OCInitStructure.TIM_Pulse = 800;  //设置通道3输出占空比为12.5%
+	TIM1_OCInitStructure.TIM_Pulse = 400;  //设置通道3输出占空比为12.5%
 	TIM_OC3Init(TIM1,&TIM1_OCInitStructure);
 	 
 	TIM1_BDTRInitStructure.TIM_OSSRState = TIM_OSSRState_Enable;		 //TIM_OSSRState 设置在运行模式下非工作状态选项
@@ -762,9 +730,9 @@ void config_PWM_new()
 	 
 	TIM_BDTRConfig(TIM1,&TIM1_BDTRInitStructure); //设置刹车特性，死区时间，锁电平，OSSI，OSSR 状态和 AOE（自动输出使能）
 	 
-	TIM_Cmd(TIM1,ENABLE);		 //TIM1 使能
+	TIM_Cmd(TIM1,DISABLE);		 //TIM1 使能
 	 
-	TIM_CtrlPWMOutputs(TIM1,ENABLE);		//使能外设 TIM1 的主输出
+	TIM_CtrlPWMOutputs(TIM1,DISABLE);		//使能外设 TIM1 的主输出
 #endif
 
 
@@ -853,7 +821,6 @@ void config_PWM()
 {
     config_PWM_RCC();
     config_PWM_GPIO();
-//	config_PWM_GPIO_new();
 
 //  config_PWM_TIM();=
 	  config_PWM_new();

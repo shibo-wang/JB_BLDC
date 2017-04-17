@@ -27,7 +27,7 @@
 #define GPIO_PORT_HALL_W 	GPIOB
 
 // TIM1 
-#define PWM_MAX_VALUE (0x7FE)
+#define PWM_MAX_VALUE (750)
 #define PWM_MIN_VALUE (60)
 
 
