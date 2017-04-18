@@ -627,12 +627,41 @@ void config_PWM()
     config_PWM_GPIO();
 	config_PWM_TIM();
 }
+
+
+void config_LED_RCC()
+{
+	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOB, ENABLE);  //使能GPIOA的时钟
+}
+
+void config_LED_GPIO()
+{
+    GPIO_InitTypeDef GPIO_InitStructure;
+    
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+    
+    //LED GPIO OUT
+    GPIO_InitStructure.GPIO_Pin = GPIO_PIN_LED_FLASH;
+    GPIO_Init(GPIO_PORT_LED_FLASH, &GPIO_InitStructure);       
+      
+    //turn off LED
+    LED_G(0);    
+
+}
+
+void config_LED()
+{
+    config_LED_RCC();
+    config_LED_GPIO();
+}
 void uComOnChipInitial(void) 
 {
     USART1_Init();
    	config_HALL();
     config_PWM();
-    SetPortDirection();	 
+    //SetPortDirection();
+    config_LED();
 	TIM_Init(); 
 #if 0     
     NVIC_Configuration();   
