@@ -217,6 +217,7 @@ u16 get_HALL_GPIO_state(void)
 void handle_HALL_interrupt(void)
 {
     g_HALL_state = get_HALL_GPIO_state();
+    printf("g_HALL_sate = %d\r\n",g_HALL_state);
     if(!g_motor_direction)
     {   
         g_HALL_state = 7 - g_HALL_state;

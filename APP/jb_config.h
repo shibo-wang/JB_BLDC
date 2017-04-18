@@ -30,6 +30,13 @@
 #define PWM_MAX_VALUE (750)
 #define PWM_MIN_VALUE (60)
 
+// UART
+#define GPIO_PIN_UART_RX    GPIO_Pin_7
+#define GPIO_PIN_UART_TX    GPIO_Pin_6
+#define GPIO_PORT_UART      GPIOB
+
+
+
 
 
 

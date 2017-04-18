@@ -328,28 +328,38 @@ void TIM3_IRQHandler(void)
 }*/
 
 
-/* USART初始化 */
-void USART1_Init(void)
+
+void config_UART_RCC()
 {
-	GPIO_InitTypeDef GPIO_InitStructure;
-	USART_InitTypeDef USART_InitStructure;
-	
 	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOB, ENABLE);  //使能GPIOA的时钟
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);//使能USART的时钟
+
+}
+
+void config_UART_GPIO()
+{
+	GPIO_InitTypeDef GPIO_InitStructure;
+
 	/* USART1的端口配置 */
 	GPIO_PinAFConfig(GPIOA, GPIO_PinSource6, GPIO_AF_1);//配置PA9成第二功能引脚	TX
 	GPIO_PinAFConfig(GPIOA, GPIO_PinSource7, GPIO_AF_1);//配置PA10成第二功能引脚  RX	
 
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_7 | GPIO_Pin_6;
+	GPIO_InitStructure.GPIO_Pin = GPIO_PIN_UART_RX | GPIO_PIN_UART_TX;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
 	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-	GPIO_Init(GPIOB, &GPIO_InitStructure);
-	
+	GPIO_Init(GPIO_PORT_UART, &GPIO_InitStructure);
 
-	/* USART1的基本配置 */
-	USART_InitStructure.USART_BaudRate = 115200;              //波特率
+}
+
+void config_UART_BaudRate(uint32_t i_baud_rate)
+{
+	USART_InitTypeDef USART_InitStructure;
+
+
+    /* USART1的基本配置 */
+	USART_InitStructure.USART_BaudRate = i_baud_rate;              //波特率
 	USART_InitStructure.USART_WordLength = USART_WordLength_8b;
 	USART_InitStructure.USART_StopBits = USART_StopBits_1;
 	USART_InitStructure.USART_Parity = USART_Parity_No;
@@ -357,16 +367,28 @@ void USART1_Init(void)
 	USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
 
 	USART_Init(USART1, &USART_InitStructure);		
+
+}
+
+void config_UART_IT()
+{
 	USART_ITConfig(USART1,USART_IT_RXNE,ENABLE);           //使能接收中断
+
+}
+
+void start_UART()
+{
 	USART_Cmd(USART1,ENABLE);                             //使能USART1
-	
-	/* USART1的NVIC中断配置 */
-  /*
-	NVIC_InitStruct.NVIC_IRQChannel = USART1_IRQn;
-	NVIC_InitStruct.NVIC_IRQChannelPriority = 0x02;
-	NVIC_InitStruct.NVIC_IRQChannelCmd = ENABLE;
-	NVIC_Init(&NVIC_InitStruct);
-	*/			
+
+}
+
+void config_UART(void)
+{
+    config_UART_RCC();
+    config_UART_GPIO();
+    config_UART_BaudRate(115200);
+    config_UART_IT();
+    start_UART();
 }
 
 //=============================================================================
@@ -415,21 +437,6 @@ TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
 TIM_OCInitTypeDef  TIM_OCInitStructure; 
 
 
-static void SetPortDirection(void)
-{
-  GPIO_InitTypeDef GPIO_InitStructure;
-
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-
-  	//LED GPIO OUT
-	GPIO_InitStructure.GPIO_Pin = GPIO_PIN_LED_FLASH;
-  GPIO_Init(GPIO_PORT_LED_FLASH, &GPIO_InitStructure);
-	    
-	
-	//turn off LED
-    LED_G(0);	 
-}
 void NVIC_Configuration(void)
 {
 #if 0 
@@ -535,8 +542,6 @@ void config_PWM_RCC()
 void config_PWM_GPIO()
 {
   	GPIO_InitTypeDef GPIO_InitStructure;
-	/* GPIOA, GPIOB and GPIOE Clocks enable */
-	RCC_AHBPeriphClockCmd( RCC_AHBPeriph_GPIOA | RCC_AHBPeriph_GPIOB, ENABLE);
 
 
 
@@ -655,13 +660,122 @@ void config_LED()
     config_LED_RCC();
     config_LED_GPIO();
 }
+
+#if 0
+static void ADC_Config(void)
+{
+  ADC_InitTypeDef     ADC_InitStructure;
+  GPIO_InitTypeDef    GPIO_InitStructure;
+  /* ADC1 DeInit */  
+  ADC_DeInit(ADC1);
+  
+  /* GPIOC Periph clock enable */
+  RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOC, ENABLE);
+  
+   /* ADC1 Periph clock enable */
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, ENABLE);
+  
+  /* Configure ADC Channel11 and channel10 as analog input */
+#ifdef USE_STM320518_EVAL
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1 ;
+#else
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 ;
+#endif /* USE_STM320518_EVAL */
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;
+  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL ;
+  GPIO_Init(GPIOC, &GPIO_InitStructure);
+  
+  /* Initialize ADC structure */
+  ADC_StructInit(&ADC_InitStructure);
+  
+  /* Configure the ADC1 in continuous mode withe a resolution equal to 12 bits  */
+  ADC_InitStructure.ADC_Resolution = ADC_Resolution_12b;
+  ADC_InitStructure.ADC_ContinuousConvMode = ENABLE; 
+  ADC_InitStructure.ADC_ExternalTrigConvEdge = ADC_ExternalTrigConvEdge_None;
+  ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
+  ADC_InitStructure.ADC_ScanDirection = ADC_ScanDirection_Backward;
+  ADC_Init(ADC1, &ADC_InitStructure); 
+
+  /* Convert the ADC1 Channel11 and channel10 with 55.5 Cycles as sampling time */ 
+#ifdef USE_STM320518_EVAL
+  ADC_ChannelConfig(ADC1, ADC_Channel_11 , ADC_SampleTime_55_5Cycles); 
+#else
+  ADC_ChannelConfig(ADC1, ADC_Channel_10 , ADC_SampleTime_55_5Cycles); 
+#endif /* USE_STM320518_EVAL */  
+  
+  
+  /* Convert the ADC1 temperature sensor  with 55.5 Cycles as sampling time */ 
+  ADC_ChannelConfig(ADC1, ADC_Channel_TempSensor , ADC_SampleTime_55_5Cycles);  
+  ADC_TempSensorCmd(ENABLE);
+  
+  /* Convert the ADC1 Vref  with 55.5 Cycles as sampling time */ 
+  ADC_ChannelConfig(ADC1, ADC_Channel_Vrefint , ADC_SampleTime_55_5Cycles); 
+  ADC_VrefintCmd(ENABLE);
+  
+  /* Convert the ADC1 Vbat with 55.5 Cycles as sampling time */ 
+  ADC_ChannelConfig(ADC1, ADC_Channel_Vbat , ADC_SampleTime_55_5Cycles);  
+  ADC_VbatCmd(ENABLE);
+  
+  /* ADC Calibration */
+  ADC_GetCalibrationFactor(ADC1);
+  
+  /* ADC DMA request in circular mode */
+  ADC_DMARequestModeConfig(ADC1, ADC_DMAMode_Circular);
+  
+  /* Enable ADC_DMA */
+  ADC_DMACmd(ADC1, ENABLE);  
+  
+  /* Enable the ADC peripheral */
+  ADC_Cmd(ADC1, ENABLE);     
+  
+  /* Wait the ADRDY flag */
+  while(!ADC_GetFlagStatus(ADC1, ADC_FLAG_ADRDY)); 
+  
+  /* ADC1 regular Software Start Conv */ 
+  ADC_StartOfConversion(ADC1);
+}
+
+static void DMA_Config(void)
+{
+  DMA_InitTypeDef   DMA_InitStructure;
+  /* DMA1 clock enable */
+  RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1 , ENABLE);
+  
+  /* DMA1 Channel1 Config */
+  DMA_DeInit(DMA1_Channel1);
+  DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)ADC1_DR_Address;
+  DMA_InitStructure.DMA_MemoryBaseAddr = (uint32_t)RegularConvData_Tab;
+  DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralSRC;
+  DMA_InitStructure.DMA_BufferSize = 4;
+  DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
+  DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
+  DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_HalfWord;
+  DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_HalfWord;
+  DMA_InitStructure.DMA_Mode = DMA_Mode_Circular;
+  DMA_InitStructure.DMA_Priority = DMA_Priority_High;
+  DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;
+  DMA_Init(DMA1_Channel1, &DMA_InitStructure);
+  /* DMA1 Channel1 enable */
+  DMA_Cmd(DMA1_Channel1, ENABLE);
+  
+}
+
+void config_CCR()
+{
+    config_LED();
+    DMA_Config();
+}
+
+#endif
+
+
 void uComOnChipInitial(void) 
 {
-    USART1_Init();
+    config_UART();
    	config_HALL();
     config_PWM();
-    //SetPortDirection();
     config_LED();
+//    config_CCR();
 	TIM_Init(); 
 #if 0     
     NVIC_Configuration();   
