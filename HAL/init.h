@@ -80,7 +80,6 @@ extern  __IO uint32_t TempSensVoltmv;
 extern  __IO uint32_t VrefIntVoltmv ;
 extern  __IO uint32_t PC3Voltmv ;
 extern  __IO uint32_t VbatVoltmv ;
-extern  uint16_t RegularConvData_Tab[4];
 
 
 

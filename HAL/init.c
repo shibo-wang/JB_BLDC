@@ -42,6 +42,12 @@
 ////////////////////////////// Deadtime Value /////////////////////////////////
 #define DEADTIME  (u16)((unsigned long long)CKTIM/2 \
           *(unsigned long long)DEADTIME_NS/1000000000uL) 
+
+#define ADC1_DR_Address    0x40012440
+
+__IO uint16_t RegularConvData_Tab[4];
+
+
 void TIM1_Configuration1(void)
 	{
 		  /* TIM1 Registers reset */
@@ -661,7 +667,7 @@ void config_LED()
     config_LED_GPIO();
 }
 
-#if 0
+#if 1
 static void ADC_Config(void)
 {
   ADC_InitTypeDef     ADC_InitStructure;
@@ -670,20 +676,16 @@ static void ADC_Config(void)
   ADC_DeInit(ADC1);
   
   /* GPIOC Periph clock enable */
-  RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOC, ENABLE);
+  RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOB, ENABLE);
   
    /* ADC1 Periph clock enable */
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, ENABLE);
   
   /* Configure ADC Channel11 and channel10 as analog input */
-#ifdef USE_STM320518_EVAL
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1 ;
-#else
   GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 ;
-#endif /* USE_STM320518_EVAL */
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;
   GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL ;
-  GPIO_Init(GPIOC, &GPIO_InitStructure);
+  GPIO_Init(GPIOB, &GPIO_InitStructure);
   
   /* Initialize ADC structure */
   ADC_StructInit(&ADC_InitStructure);
@@ -697,11 +699,8 @@ static void ADC_Config(void)
   ADC_Init(ADC1, &ADC_InitStructure); 
 
   /* Convert the ADC1 Channel11 and channel10 with 55.5 Cycles as sampling time */ 
-#ifdef USE_STM320518_EVAL
-  ADC_ChannelConfig(ADC1, ADC_Channel_11 , ADC_SampleTime_55_5Cycles); 
-#else
-  ADC_ChannelConfig(ADC1, ADC_Channel_10 , ADC_SampleTime_55_5Cycles); 
-#endif /* USE_STM320518_EVAL */  
+
+  ADC_ChannelConfig(ADC1, ADC_Channel_8 , ADC_SampleTime_55_5Cycles); 
   
   
   /* Convert the ADC1 temperature sensor  with 55.5 Cycles as sampling time */ 
@@ -735,6 +734,7 @@ static void ADC_Config(void)
   ADC_StartOfConversion(ADC1);
 }
 
+
 static void DMA_Config(void)
 {
   DMA_InitTypeDef   DMA_InitStructure;
@@ -762,7 +762,7 @@ static void DMA_Config(void)
 
 void config_CCR()
 {
-    config_LED();
+    ADC_Config();
     DMA_Config();
 }
 
@@ -775,8 +775,8 @@ void uComOnChipInitial(void)
    	config_HALL();
     config_PWM();
     config_LED();
-//    config_CCR();
-	TIM_Init(); 
+    config_CCR();
+//	TIM_Init(); 
 #if 0     
     NVIC_Configuration();   
   

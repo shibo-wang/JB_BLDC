@@ -43,6 +43,8 @@ int i;
 char keytemp=1;
 char flagccw=0;
 ErrorStatus HSEStartUpStatus;  
+extern __IO uint16_t RegularConvData_Tab[4];
+
 
 
 //闭环计算子程序
@@ -132,6 +134,13 @@ int main(void)
 			  if(My_PWM>5000)			  
 			  My_PWM=5000;
 			#endif
+
+			    /* Test DMA1 TC flag */    
+				while((DMA_GetFlagStatus(DMA1_FLAG_TC1)) == RESET );         
+				/* Clear DMA TC flag */    
+				DMA_ClearFlag(DMA1_FLAG_TC1);
+				printf("adc %d %d %d %d \r\n",
+					RegularConvData_Tab[0],RegularConvData_Tab[1],RegularConvData_Tab[2],RegularConvData_Tab[3]);
 	 
         }
   
