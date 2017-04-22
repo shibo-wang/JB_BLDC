@@ -667,6 +667,84 @@ void config_LED()
     config_LED_GPIO();
 }
 
+static void config_CCU_RCC()
+{
+	/* GPIOB Periph clock enable */
+	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOB, ENABLE);
+	/* GPIOA Periph clock enable */
+	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA, ENABLE);  
+	
+	 /* ADC1 Periph clock enable */
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, ENABLE);
+	
+
+}
+
+static void config_CCU_GPIO()
+{
+	GPIO_InitTypeDef	GPIO_InitStructure;
+	/*UVW current*/
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 ;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;
+	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL ;
+	GPIO_Init(GPIOB, &GPIO_InitStructure);
+	/*U current*/
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4 ;
+	GPIO_Init(GPIOA, &GPIO_InitStructure);	
+	/*V current*/
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5 ;
+	GPIO_Init(GPIOA, &GPIO_InitStructure);	
+	/*W current*/
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6 ;
+	GPIO_Init(GPIOA, &GPIO_InitStructure);	
+}
+
+static void config_CCU_ADC()
+{
+	ADC_InitTypeDef 	ADC_InitStructure;
+
+	/* Initialize ADC structure */
+	ADC_StructInit(&ADC_InitStructure);
+	  
+	/* Configure the ADC1 in continuous mode withe a resolution equal to 12 bits	*/
+	ADC_InitStructure.ADC_Resolution = ADC_Resolution_12b;
+	ADC_InitStructure.ADC_ContinuousConvMode = ENABLE; 
+	ADC_InitStructure.ADC_ExternalTrigConvEdge = ADC_ExternalTrigConvEdge_None;
+	ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
+	ADC_InitStructure.ADC_ScanDirection = ADC_ScanDirection_Backward;
+	ADC_Init(ADC1, &ADC_InitStructure); 
+	
+	/* Convert the ADC1 Channel11 and channel10 with 55.5 Cycles as sampling time */ 
+	//UVW
+	ADC_ChannelConfig(ADC1, ADC_Channel_8 , ADC_SampleTime_55_5Cycles); 
+	//U
+	ADC_ChannelConfig(ADC1, ADC_Channel_4 , ADC_SampleTime_55_5Cycles);
+	//V
+	ADC_ChannelConfig(ADC1, ADC_Channel_5 , ADC_SampleTime_55_5Cycles); 
+	//W
+	ADC_ChannelConfig(ADC1, ADC_Channel_6 , ADC_SampleTime_55_5Cycles); 
+	    
+	/* ADC Calibration */
+	ADC_GetCalibrationFactor(ADC1);
+	  
+	/* ADC DMA request in circular mode */
+	ADC_DMARequestModeConfig(ADC1, ADC_DMAMode_Circular);
+	  
+	/* Enable ADC_DMA */
+	ADC_DMACmd(ADC1, ENABLE);  
+	  
+	/* Enable the ADC peripheral */
+	ADC_Cmd(ADC1, ENABLE);	 
+	  
+	/* Wait the ADRDY flag */
+	while(!ADC_GetFlagStatus(ADC1, ADC_FLAG_ADRDY)); 
+	  
+	/* ADC1 regular Software Start Conv */ 
+	ADC_StartOfConversion(ADC1);
+
+}
+
+
 #if 1
 static void ADC_Config(void)
 {
@@ -754,7 +832,7 @@ static void ADC_Config(void)
 }
 
 
-static void DMA_Config(void)
+static void config_CCU_DMA(void)
 {
   DMA_InitTypeDef   DMA_InitStructure;
   /* DMA1 clock enable */
@@ -778,11 +856,14 @@ static void DMA_Config(void)
   DMA_Cmd(DMA1_Channel1, ENABLE);
   
 }
-
-void config_CCR()
+//config current control unit
+void config_CCU()
 {
-    ADC_Config();
-    DMA_Config();
+    //ADC_Config();
+    config_CCU_RCC();
+	config_CCU_GPIO();
+	config_CCU_ADC();
+	config_CCU_DMA();	
 }
 
 #endif
@@ -794,7 +875,7 @@ void uComOnChipInitial(void)
    	config_HALL();
     config_PWM();
     config_LED();
-    config_CCR();
+    config_CCU();
 //	TIM_Init(); 
 #if 0     
     NVIC_Configuration();   
