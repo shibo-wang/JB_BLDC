@@ -35,6 +35,31 @@
 #define GPIO_PIN_UART_TX    GPIO_Pin_6
 #define GPIO_PORT_UART      GPIOB
 
+// CCU 
+#define CCU_ADC_NUM			ADC1
+// CCU U
+#define CCU_ADC_CHANNEL_U   ADC_Channel_4
+#define CCU_GPIO_PIN_U    	GPIO_Pin_4
+#define CCU_GPIO_PORT_U		GPIOA
+// CCU V
+#define CCU_ADC_CHANNEL_V   ADC_Channel_5
+#define CCU_GPIO_PIN_V    	GPIO_Pin_5
+#define CCU_GPIO_PORT_V		GPIOA
+// CCU W
+#define CCU_ADC_CHANNEL_W   ADC_Channel_6
+#define CCU_GPIO_PIN_W    	GPIO_Pin_6
+#define CCU_GPIO_PORT_W		GPIOA
+// CCU UVW
+#define CCU_ADC_CHANNEL_UVW	ADC_Channel_8
+#define CCU_GPIO_PIN_UVW  	GPIO_Pin_0
+#define CCU_GPIO_PORT_UVW	GPIOB
+// CCU DMA
+#define CCU_DMA_CHANNEL		DMA1_Channel1
+
+
+
+
+
 
 
 

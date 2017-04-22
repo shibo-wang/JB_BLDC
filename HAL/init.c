@@ -674,29 +674,32 @@ static void config_CCU_RCC()
 	/* GPIOA Periph clock enable */
 	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA, ENABLE);  
 	
-	 /* ADC1 Periph clock enable */
+	/* ADC1 Periph clock enable */
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, ENABLE);
-	
 
+	/* DMA1 clock enable */
+  	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1 , ENABLE);
 }
 
 static void config_CCU_GPIO()
 {
 	GPIO_InitTypeDef	GPIO_InitStructure;
+
+	/*U current*/
+	GPIO_InitStructure.GPIO_Pin = CCU_GPIO_PIN_U ;
+	GPIO_Init(CCU_GPIO_PORT_U, &GPIO_InitStructure);	
+	/*V current*/
+	GPIO_InitStructure.GPIO_Pin = CCU_GPIO_PIN_V ;
+	GPIO_Init(CCU_GPIO_PORT_V, &GPIO_InitStructure);	
+	/*W current*/
+	GPIO_InitStructure.GPIO_Pin = CCU_GPIO_PIN_W ;
+	GPIO_Init(CCU_GPIO_PORT_W, &GPIO_InitStructure);
+
 	/*UVW current*/
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 ;
+	GPIO_InitStructure.GPIO_Pin = CCU_GPIO_PIN_UVW ;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;
 	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL ;
-	GPIO_Init(GPIOB, &GPIO_InitStructure);
-	/*U current*/
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4 ;
-	GPIO_Init(GPIOA, &GPIO_InitStructure);	
-	/*V current*/
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5 ;
-	GPIO_Init(GPIOA, &GPIO_InitStructure);	
-	/*W current*/
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6 ;
-	GPIO_Init(GPIOA, &GPIO_InitStructure);	
+	GPIO_Init(CCU_GPIO_PORT_UVW, &GPIO_InitStructure);	
 }
 
 static void config_CCU_ADC()
@@ -712,35 +715,36 @@ static void config_CCU_ADC()
 	ADC_InitStructure.ADC_ExternalTrigConvEdge = ADC_ExternalTrigConvEdge_None;
 	ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
 	ADC_InitStructure.ADC_ScanDirection = ADC_ScanDirection_Backward;
-	ADC_Init(ADC1, &ADC_InitStructure); 
+	ADC_Init(CCU_ADC_NUM, &ADC_InitStructure); 
 	
 	/* Convert the ADC1 Channel11 and channel10 with 55.5 Cycles as sampling time */ 
-	//UVW
-	ADC_ChannelConfig(ADC1, ADC_Channel_8 , ADC_SampleTime_55_5Cycles); 
+
 	//U
-	ADC_ChannelConfig(ADC1, ADC_Channel_4 , ADC_SampleTime_55_5Cycles);
+	ADC_ChannelConfig(CCU_ADC_NUM, CCU_ADC_CHANNEL_U , ADC_SampleTime_55_5Cycles);
 	//V
-	ADC_ChannelConfig(ADC1, ADC_Channel_5 , ADC_SampleTime_55_5Cycles); 
+	ADC_ChannelConfig(CCU_ADC_NUM, CCU_ADC_CHANNEL_V , ADC_SampleTime_55_5Cycles); 
 	//W
-	ADC_ChannelConfig(ADC1, ADC_Channel_6 , ADC_SampleTime_55_5Cycles); 
+	ADC_ChannelConfig(CCU_ADC_NUM, CCU_ADC_CHANNEL_W , ADC_SampleTime_55_5Cycles);
+	//UVW
+	ADC_ChannelConfig(CCU_ADC_NUM, CCU_ADC_CHANNEL_UVW , ADC_SampleTime_55_5Cycles); 	
 	    
 	/* ADC Calibration */
-	ADC_GetCalibrationFactor(ADC1);
+	ADC_GetCalibrationFactor(CCU_ADC_NUM);
 	  
 	/* ADC DMA request in circular mode */
-	ADC_DMARequestModeConfig(ADC1, ADC_DMAMode_Circular);
+	ADC_DMARequestModeConfig(CCU_ADC_NUM, ADC_DMAMode_Circular);
 	  
 	/* Enable ADC_DMA */
-	ADC_DMACmd(ADC1, ENABLE);  
+	ADC_DMACmd(CCU_ADC_NUM, ENABLE);  
 	  
 	/* Enable the ADC peripheral */
-	ADC_Cmd(ADC1, ENABLE);	 
+	ADC_Cmd(CCU_ADC_NUM, ENABLE);	 
 	  
 	/* Wait the ADRDY flag */
-	while(!ADC_GetFlagStatus(ADC1, ADC_FLAG_ADRDY)); 
+	while(!ADC_GetFlagStatus(CCU_ADC_NUM, ADC_FLAG_ADRDY)); 
 	  
 	/* ADC1 regular Software Start Conv */ 
-	ADC_StartOfConversion(ADC1);
+	ADC_StartOfConversion(CCU_ADC_NUM);
 
 }
 
@@ -835,11 +839,9 @@ static void ADC_Config(void)
 static void config_CCU_DMA(void)
 {
   DMA_InitTypeDef   DMA_InitStructure;
-  /* DMA1 clock enable */
-  RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1 , ENABLE);
-  
+ 
   /* DMA1 Channel1 Config */
-  DMA_DeInit(DMA1_Channel1);
+  DMA_DeInit(CCU_DMA_CHANNEL);
   DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)ADC1_DR_Address;
   DMA_InitStructure.DMA_MemoryBaseAddr = (uint32_t)RegularConvData_Tab;
   DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralSRC;
@@ -851,9 +853,9 @@ static void config_CCU_DMA(void)
   DMA_InitStructure.DMA_Mode = DMA_Mode_Circular;
   DMA_InitStructure.DMA_Priority = DMA_Priority_High;
   DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;
-  DMA_Init(DMA1_Channel1, &DMA_InitStructure);
+  DMA_Init(CCU_DMA_CHANNEL, &DMA_InitStructure);
   /* DMA1 Channel1 enable */
-  DMA_Cmd(DMA1_Channel1, ENABLE);
+  DMA_Cmd(CCU_DMA_CHANNEL, ENABLE);
   
 }
 //config current control unit
