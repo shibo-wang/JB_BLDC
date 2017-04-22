@@ -684,7 +684,7 @@ static void config_CCU_RCC()
 static void config_CCU_GPIO()
 {
 	GPIO_InitTypeDef	GPIO_InitStructure;
-
+	GPIO_StructInit(&GPIO_InitStructure);
 	/*U current*/
 	GPIO_InitStructure.GPIO_Pin = CCU_GPIO_PIN_U ;
 	GPIO_Init(CCU_GPIO_PORT_U, &GPIO_InitStructure);	
