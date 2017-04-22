@@ -160,10 +160,6 @@ PUTCHAR_PROTOTYPE
 
   return ch;
 }
-TIM_BDTRInitTypeDef TIM_BDTRInitStructure;
-TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
-TIM_OCInitTypeDef  TIM_OCInitStructure; 
-
 
 
 void config_HALL_RCC(void)
