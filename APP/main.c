@@ -139,8 +139,10 @@ int main(void)
 				while((DMA_GetFlagStatus(DMA1_FLAG_TC1)) == RESET );         
 				/* Clear DMA TC flag */    
 				DMA_ClearFlag(DMA1_FLAG_TC1);
+				#if 0
 				printf("adc %d %d %d %d \r\n",
 					RegularConvData_Tab[0],RegularConvData_Tab[1],RegularConvData_Tab[2],RegularConvData_Tab[3]);
+				#endif
 	 
         }
   
