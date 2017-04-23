@@ -285,7 +285,7 @@ void config_PWM_TIM()
 	TIM1_TimeBaseInitStructure.TIM_RepetitionCounter = 0;
 	TIM_TimeBaseInit(TIM1,&TIM1_TimeBaseInitStructure);//根据 TIM1_TIM1BaseInitStruct 中指定的参数初始化 TIM1 的时间基数单位
 	 
-	TIM_ARRPreloadConfig(TIM1, ENABLE);
+//	TIM_ARRPreloadConfig(TIM1, ENABLE);
 	 
 	TIM1_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;//TIM1_OCMode 选择定时器模式			 
 	TIM1_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable; //TIM1_OutputState选择输出比较状态
