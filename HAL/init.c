@@ -286,6 +286,14 @@ void config_PWM_TIM()
 	TIM_TimeBaseInit(TIM1,&TIM1_TimeBaseInitStructure);//根据 TIM1_TIM1BaseInitStruct 中指定的参数初始化 TIM1 的时间基数单位
 	 
 //	TIM_ARRPreloadConfig(TIM1, ENABLE);
+	/* Enables the TIM1 Preload on CC1 Register */
+	TIM_OC1PreloadConfig(TIM1,TIM_OCPreload_Enable);
+	/* Enables the TIM1 Preload on CC2 Register */
+	TIM_OC2PreloadConfig(TIM1,TIM_OCPreload_Enable);
+	/* Enables the TIM1 Preload on CC3 Register */
+	TIM_OC3PreloadConfig(TIM1,TIM_OCPreload_Enable);
+
+	
 	 
 	TIM1_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;//TIM1_OCMode 选择定时器模式			 
 	TIM1_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable; //TIM1_OutputState选择输出比较状态
