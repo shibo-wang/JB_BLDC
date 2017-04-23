@@ -27,7 +27,7 @@
  TIM_OCInitTypeDef TIM1_OCInitStructure;
  TIM_BDTRInitTypeDef TIM1_BDTRInitStructure;
  /////////////////////// PWM Peripheral Input clock ////////////////////////////
-#define CKTIM	((u32)8000000uL) 	/* Silicon running at 72MHz Resolution: 1Hz */
+#define CKTIM	((u32)48000000uL) 	/* Silicon running at 72MHz Resolution: 1Hz */
 
 #define PWM_PRSC ((u8)0)
 /****	Power devices switching frequency  ****/

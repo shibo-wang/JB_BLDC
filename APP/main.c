@@ -99,8 +99,11 @@ void enable_PWM_TIM()
 //参数说明：无
 //函数返回：int
 //=============================================================================
+RCC_ClocksTypeDef ClockInfo;
+
 int main(void)
 {
+  RCC_GetClocksFreq(&ClockInfo);
   uComOnChipInitial(); 
   SysTick_Config(48000); 
   enable_PWM_TIM();
