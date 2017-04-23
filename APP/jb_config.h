@@ -27,7 +27,16 @@
 #define GPIO_PORT_HALL_W 	GPIOB
 
 // TIM1 
-#define PWM_MAX_VALUE (750)
+ /////////////////////// PWM Peripheral Input clock ////////////////////////////
+#define CKTIM	((u32)48000000uL) 	/* Silicon running at 72MHz Resolution: 1Hz */
+
+#define PWM_PRSC ((u8)0)
+/****	Power devices switching frequency  ****/
+#define PWM_FREQ ((u16) 10000) // in Hz  (N.b.: pattern type is center aligned)
+/* Resolution: 1Hz */                            
+#define PWM_PERIOD ((u16) (CKTIM / (u32)( PWM_FREQ *(PWM_PRSC+1)))) 
+
+#define PWM_MAX_VALUE (PWM_PERIOD-100)
 #define PWM_MIN_VALUE (60)
 
 // UART

@@ -26,14 +26,6 @@
  TIM_TimeBaseInitTypeDef TIM1_TimeBaseStructure;
  TIM_OCInitTypeDef TIM1_OCInitStructure;
  TIM_BDTRInitTypeDef TIM1_BDTRInitStructure;
- /////////////////////// PWM Peripheral Input clock ////////////////////////////
-#define CKTIM	((u32)48000000uL) 	/* Silicon running at 72MHz Resolution: 1Hz */
-
-#define PWM_PRSC ((u8)0)
-/****	Power devices switching frequency  ****/
-#define PWM_FREQ ((u16) 10000) // in Hz  (N.b.: pattern type is center aligned)
-/* Resolution: 1Hz */                            
-#define PWM_PERIOD ((u16) (CKTIM / (u32)( PWM_FREQ *(PWM_PRSC+1)))) 
 	
 /****	ADC IRQ-HANDLER frequency, related to PWM  ****/
 #define REP_RATE (0)  	// (N.b): Internal current loop is performed every
