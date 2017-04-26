@@ -476,6 +476,6 @@ void uComOnChipInitial(void)
    	config_HALL();
     config_PWM();
     config_LED();
-    config_CCU();
+//    config_CCU();
 }
 

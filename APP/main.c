@@ -14,7 +14,7 @@ volatile struct {
 unsigned int DesiredSpeed=1000;
 unsigned int ActualSpeed;
 
-unsigned int g_pwm_value=1200;//500
+unsigned int g_pwm_value=PWM_PERIOD*0.25;//500
 unsigned int T3Count;
 unsigned int ActualSpeed5[3];
 int ADC_DMABUF;
@@ -137,12 +137,13 @@ int main(void)
 			  if(My_PWM>5000)			  
 			  My_PWM=5000;
 			#endif
+#if 0
 
 			    /* Test DMA1 TC flag */    
 				while((DMA_GetFlagStatus(DMA1_FLAG_TC1)) == RESET );         
 				/* Clear DMA TC flag */    
 				DMA_ClearFlag(DMA1_FLAG_TC1);
-				#if 0
+
 				printf("adc %d %d %d %d \r\n",
 					RegularConvData_Tab[0],RegularConvData_Tab[1],RegularConvData_Tab[2],RegularConvData_Tab[3]);
 				#endif
