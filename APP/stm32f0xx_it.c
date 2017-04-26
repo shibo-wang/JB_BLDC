@@ -155,8 +155,15 @@ void update_bridge_state(void)
 	{
         case 5:    
             //U->V
+            #if 1
+            TIM1->CCER = 0x0005 ;
+			TIM1->CCR1 = l_pwm_value; 
+      		TIM1->CCR2 = 0; 
+      		TIM1->CCR3 = 0;
+			#else
             open_half_bridge_P_U(l_pwm_value);
             open_half_bridge_N_V();
+            #endif
 			break;
         case 1:
             //U->W
