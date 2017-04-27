@@ -287,15 +287,15 @@ void config_PWM_TIM()
 
 	
 	 
-	TIM1_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;//TIM1_OCMode 选择定时器模式			 
+	TIM1_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM2;//TIM1_OCMode 选择定时器模式			 
 	TIM1_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable; //TIM1_OutputState选择输出比较状态
 	TIM1_OCInitStructure.TIM_OutputNState = TIM_OutputNState_Enable; //TIM1_OutputNState选择互补输出比较状态
 	TIM1_OCInitStructure.TIM_Pulse = 200; //TIM1_Pulse设置了待装入捕获比较寄存器的脉冲值——占空比为50%。
 	TIM1_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High; //TIM1_OCPolarity输出极性高；
-	TIM1_OCInitStructure.TIM_OCNPolarity = TIM_OCPolarity_High; //TIM1互补输出极性为高
+	TIM1_OCInitStructure.TIM_OCNPolarity = TIM_OCNPolarity_High; //TIM1互补输出极性为高
 	//原书中OCP和OCNP均设置为Low，看不出互补特性
 	TIM1_OCInitStructure.TIM_OCIdleState = TIM_OCIdleState_Reset; //TIM1_OCIdleState选择空闲状态下的非工作状态(MOE=0时设置TIM1输出比较空闲状态)
-	TIM1_OCInitStructure.TIM_OCNIdleState = TIM_OCIdleState_Reset; //MOE = 0时重置互补输出的输出比较空闲状态	 
+	TIM1_OCInitStructure.TIM_OCNIdleState = TIM_OCNIdleState_Reset; //MOE = 0时重置互补输出的输出比较空闲状态	 
 	TIM_OC1Init(TIM1,&TIM1_OCInitStructure);
 	 
 	TIM1_OCInitStructure.TIM_Pulse = 500;  //设置通道2输出占空比为25%
@@ -306,8 +306,8 @@ void config_PWM_TIM()
 	 
 	TIM1_BDTRInitStructure.TIM_OSSRState = TIM_OSSRState_Enable;		 //TIM_OSSRState 设置在运行模式下非工作状态选项
 	TIM1_BDTRInitStructure.TIM_OSSIState = TIM_OSSIState_Enable;		 //TIM_OSSIState 设置在运行模式下非工作状态选项
-	TIM1_BDTRInitStructure.TIM_LOCKLevel = TIM_LOCKLevel_OFF;			 //TIM_LOCKLevel 设置了锁电平参数——锁电平1
-	TIM1_BDTRInitStructure.TIM_DeadTime  = 20;						  //死区时间1.625μs
+	TIM1_BDTRInitStructure.TIM_LOCKLevel = TIM_LOCKLevel_1;			 //TIM_LOCKLevel 设置了锁电平参数——锁电平1
+	TIM1_BDTRInitStructure.TIM_DeadTime  = 0x20;						  //死区时间1.625μs
 	TIM1_BDTRInitStructure.TIM_Break = TIM_Break_Disable;							   //TIM1 刹车输入使能
 	TIM1_BDTRInitStructure.TIM_BreakPolarity = TIM_BreakPolarity_High;	 //TIM1 刹车输入管脚极性
 	TIM1_BDTRInitStructure.TIM_AutomaticOutput = TIM_AutomaticOutput_Enable; //TIM1_AutomaticOutput 自动输出使能
