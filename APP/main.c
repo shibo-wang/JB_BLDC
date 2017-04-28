@@ -14,7 +14,7 @@ volatile struct {
 unsigned int DesiredSpeed=1000;
 unsigned int ActualSpeed;
 
-unsigned int g_pwm_value=PWM_PERIOD*0.25;//500
+unsigned int g_pwm_value=PWM_PERIOD*0.75;//500
 unsigned int T3Count;
 unsigned int ActualSpeed5[3];
 int ADC_DMABUF;

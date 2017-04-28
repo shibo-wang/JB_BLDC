@@ -156,10 +156,10 @@ void update_bridge_state(void)
         case 5:    
             //U->V
             #if 1
-            TIM1->CCER = 0x0005 ;
 			TIM1->CCR1 = l_pwm_value; 
       		TIM1->CCR2 = 0; 
-      		TIM1->CCR3 = 0;
+      		TIM1->CCR3 = 0;			
+            TIM1->CCER = 0x0045;
 			#else
             open_half_bridge_P_U(l_pwm_value);
             open_half_bridge_N_V();
@@ -167,28 +167,63 @@ void update_bridge_state(void)
 			break;
         case 1:
             //U->W
+            #if 1
+			TIM1->CCR1 = l_pwm_value; 
+      		TIM1->CCR2 = 0; 
+      		TIM1->CCR3 = 0;	
+			TIM1->CCER = 0x0405;
+			#else
             open_half_bridge_P_U(l_pwm_value);
             open_half_bridge_N_W(); 
+			#endif
 			break;
 		case 3:	
             //V->W
+            #if 1
+			TIM1->CCR1 = 0; 
+      		TIM1->CCR2 = l_pwm_value; 
+      		TIM1->CCR3 = 0;	
+			TIM1->CCER = 0x0450;
+			#else
             open_half_bridge_P_V(l_pwm_value);
-            open_half_bridge_N_W();          
+            open_half_bridge_N_W();
+			#endif
 			break;
 		case 2:
 	        //V->U
+	        #if 1
+			TIM1->CCR1 = 0; 
+      		TIM1->CCR2 = l_pwm_value; 
+      		TIM1->CCR3 = 0;	
+			TIM1->CCER = 0x0054;
+			#else
             open_half_bridge_P_V(l_pwm_value);
-            open_half_bridge_N_U();  
+            open_half_bridge_N_U(); 
+			#endif
             break;
 		case 6:		
             //W->U
+            #if 1
+			TIM1->CCR1 = 0; 
+      		TIM1->CCR2 = 0; 
+      		TIM1->CCR3 = l_pwm_value;	
+			TIM1->CCER = 0x0504;
+			#else
             open_half_bridge_P_W(l_pwm_value);
-            open_half_bridge_N_U();    
+            open_half_bridge_N_U();
+			#endif
 			break;
 		case 4:			
 	        //W->V
+	        #if 1
+			TIM1->CCR1 = 0; 
+      		TIM1->CCR2 = 0; 
+      		TIM1->CCR3 = l_pwm_value;	
+			TIM1->CCER = 0x0540;
+			#else
             open_half_bridge_P_W(l_pwm_value);
-            open_half_bridge_N_V();  
+            open_half_bridge_N_V();
+			#endif
 			break;
 		default:
             printf("error: invalid HALL value");
