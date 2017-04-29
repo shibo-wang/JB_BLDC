@@ -94,44 +94,6 @@ void SysTick_Handler(void)
     }  
 }
 
-__inline void open_half_bridge_N_U(void)
-{
-    GPIO_ResetBits(GPIO_PORT_PWM_N_UVW, GPIO_PIN_PWM_N_V | GPIO_PIN_PWM_N_W); 
-    GPIO_SetBits(GPIO_PORT_PWM_N_UVW, GPIO_PIN_PWM_N_U);      
-}
-
-__inline void open_half_bridge_N_V(void)
-{
-    GPIO_ResetBits(GPIO_PORT_PWM_N_UVW, GPIO_PIN_PWM_N_U | GPIO_PIN_PWM_N_W); 
-    GPIO_SetBits(GPIO_PORT_PWM_N_UVW, GPIO_PIN_PWM_N_V);    
-}
-
-__inline void open_half_bridge_N_W(void)
-{
-    GPIO_ResetBits(GPIO_PORT_PWM_N_UVW, GPIO_PIN_PWM_N_U | GPIO_PIN_PWM_N_V); 
-    GPIO_SetBits(GPIO_PORT_PWM_N_UVW, GPIO_PIN_PWM_N_W);      
-}
-
-__inline void open_half_bridge_P_U(u16 i_PWM)
-{
-    TIM1->CCR1 = i_PWM;            
-    TIM1->CCR2 = 0;					  
-    TIM1->CCR3 = 0;    
-}
-
-__inline void open_half_bridge_P_V(u16 i_PWM)
-{
-    TIM1->CCR1 = 0;            
-    TIM1->CCR2 = i_PWM;					  
-    TIM1->CCR3 = 0;     
-}
-
-__inline void open_half_bridge_P_W(u16 i_PWM)
-{
-    TIM1->CCR1 = 0;            
-    TIM1->CCR2 = 0;					  
-    TIM1->CCR3 = i_PWM;     
-}
 
 void update_bridge_state(void)
 { 
@@ -155,75 +117,46 @@ void update_bridge_state(void)
 	{
         case 5:    
             //U->V
-            #if 1
+            TIM1->CCER = 0x0045;
 			TIM1->CCR1 = l_pwm_value; 
       		TIM1->CCR2 = 0; 
-      		TIM1->CCR3 = 0;			
-            TIM1->CCER = 0x0045;
-			#else
-            open_half_bridge_P_U(l_pwm_value);
-            open_half_bridge_N_V();
-            #endif
+      		TIM1->CCR3 = 0;						
 			break;
         case 1:
             //U->W
-            #if 1
+			TIM1->CCER = 0x0405;
 			TIM1->CCR1 = l_pwm_value; 
       		TIM1->CCR2 = 0; 
-      		TIM1->CCR3 = 0;	
-			TIM1->CCER = 0x0405;
-			#else
-            open_half_bridge_P_U(l_pwm_value);
-            open_half_bridge_N_W(); 
-			#endif
+      		TIM1->CCR3 = 0;				
 			break;
 		case 3:	
             //V->W
-            #if 1
+			TIM1->CCER = 0x0450;
 			TIM1->CCR1 = 0; 
       		TIM1->CCR2 = l_pwm_value; 
-      		TIM1->CCR3 = 0;	
-			TIM1->CCER = 0x0450;
-			#else
-            open_half_bridge_P_V(l_pwm_value);
-            open_half_bridge_N_W();
-			#endif
+      		TIM1->CCR3 = 0;				
 			break;
 		case 2:
 	        //V->U
-	        #if 1
+			TIM1->CCER = 0x0054;
 			TIM1->CCR1 = 0; 
       		TIM1->CCR2 = l_pwm_value; 
       		TIM1->CCR3 = 0;	
-			TIM1->CCER = 0x0054;
-			#else
-            open_half_bridge_P_V(l_pwm_value);
-            open_half_bridge_N_U(); 
-			#endif
+			
             break;
 		case 6:		
             //W->U
-            #if 1
+			TIM1->CCER = 0x0504;
 			TIM1->CCR1 = 0; 
       		TIM1->CCR2 = 0; 
-      		TIM1->CCR3 = l_pwm_value;	
-			TIM1->CCER = 0x0504;
-			#else
-            open_half_bridge_P_W(l_pwm_value);
-            open_half_bridge_N_U();
-			#endif
+      		TIM1->CCR3 = l_pwm_value;				
 			break;
 		case 4:			
 	        //W->V
-	        #if 1
+			TIM1->CCER = 0x0540;
 			TIM1->CCR1 = 0; 
       		TIM1->CCR2 = 0; 
-      		TIM1->CCR3 = l_pwm_value;	
-			TIM1->CCER = 0x0540;
-			#else
-            open_half_bridge_P_W(l_pwm_value);
-            open_half_bridge_N_V();
-			#endif
+      		TIM1->CCR3 = l_pwm_value;				
 			break;
 		default:
             printf("error: invalid HALL value");
