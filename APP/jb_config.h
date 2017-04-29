@@ -20,11 +20,15 @@
 
 
 // UVW HALL in
-#define GPIO_PIN_HALL_U 	GPIO_Pin_1
-#define GPIO_PIN_HALL_V 	GPIO_Pin_15
-#define GPIO_PORT_HALL_UV 	GPIOA
-#define GPIO_PIN_HALL_W 	GPIO_Pin_10
-#define GPIO_PORT_HALL_W 	GPIOB
+#define GPIO_PIN_HALL_U 		GPIO_Pin_1
+#define GPIO_PIN_SOURCE_HALL_U 	GPIO_PinSource1
+#define GPIO_PIN_HALL_V 		GPIO_Pin_15
+#define GPIO_PIN_SOURCE_HALL_V 	GPIO_PinSource15
+#define GPIO_PORT_HALL_UV 		GPIOA
+
+#define GPIO_PIN_HALL_W 		GPIO_Pin_10
+#define GPIO_PIN_SOURCE_HALL_W 	GPIO_PinSource10
+#define GPIO_PORT_HALL_W 		GPIOB
 
 // TIM1 
  /////////////////////// PWM Peripheral Input clock ////////////////////////////

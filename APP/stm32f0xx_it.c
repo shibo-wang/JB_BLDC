@@ -117,46 +117,45 @@ void update_bridge_state(void)
 	{
         case 5:    
             //U->V
-            TIM1->CCER = 0x0045;
 			TIM1->CCR1 = l_pwm_value; 
       		TIM1->CCR2 = 0; 
-      		TIM1->CCR3 = 0;						
+      		TIM1->CCR3 = 0;						            
+            TIM1->CCER = 0x0045;
 			break;
         case 1:
             //U->W
-			TIM1->CCER = 0x0405;
 			TIM1->CCR1 = l_pwm_value; 
       		TIM1->CCR2 = 0; 
-      		TIM1->CCR3 = 0;				
+      		TIM1->CCR3 = 0;				            
+			TIM1->CCER = 0x0405;
 			break;
 		case 3:	
             //V->W
-			TIM1->CCER = 0x0450;
 			TIM1->CCR1 = 0; 
       		TIM1->CCR2 = l_pwm_value; 
-      		TIM1->CCR3 = 0;				
+      		TIM1->CCR3 = 0;				            
+			TIM1->CCER = 0x0450;
 			break;
 		case 2:
 	        //V->U
-			TIM1->CCER = 0x0054;
 			TIM1->CCR1 = 0; 
       		TIM1->CCR2 = l_pwm_value; 
-      		TIM1->CCR3 = 0;	
-			
+      		TIM1->CCR3 = 0;		        
+			TIM1->CCER = 0x0054;			
             break;
 		case 6:		
             //W->U
-			TIM1->CCER = 0x0504;
 			TIM1->CCR1 = 0; 
       		TIM1->CCR2 = 0; 
-      		TIM1->CCR3 = l_pwm_value;				
+      		TIM1->CCR3 = l_pwm_value;				            
+			TIM1->CCER = 0x0504;
 			break;
 		case 4:			
 	        //W->V
-			TIM1->CCER = 0x0540;
 			TIM1->CCR1 = 0; 
       		TIM1->CCR2 = 0; 
-      		TIM1->CCR3 = l_pwm_value;				
+      		TIM1->CCR3 = l_pwm_value;					        
+			TIM1->CCER = 0x0540;
 			break;
 		default:
             printf("error: invalid HALL value");
@@ -165,27 +164,12 @@ void update_bridge_state(void)
 }
 
 
-u16 get_HALL_GPIO_state(void)
+__inline u16 get_HALL_GPIO_state(void)
 {
-    u16 l_HALL_state_UV = 0;
-    u16 l_HALL_state_W = 0;
     u16 l_HALL_sate = 0;
-    l_HALL_state_UV = GPIO_ReadInputData(GPIO_PORT_HALL_UV);
-    l_HALL_state_W = GPIO_ReadInputData(GPIO_PORT_HALL_W);
-    if (l_HALL_state_UV & GPIO_PIN_HALL_U)
-    {
-        l_HALL_sate |= 0x04;
-    }
-
-    if (l_HALL_state_UV & GPIO_PIN_HALL_V)
-    {
-        l_HALL_sate |= 0x02;
-    }   
-
-    if (l_HALL_state_W & GPIO_PIN_HALL_W)
-    {
-        l_HALL_sate |= 0x01;
-    }
+    l_HALL_sate = ((((GPIO_PORT_HALL_UV->IDR & GPIO_PIN_HALL_U) >> GPIO_PIN_SOURCE_HALL_U) << 2) |
+				  (((GPIO_PORT_HALL_UV->IDR & GPIO_PIN_HALL_V) >> GPIO_PIN_SOURCE_HALL_V) << 1) | 
+				  (((GPIO_PORT_HALL_W->IDR & GPIO_PIN_HALL_W) >> GPIO_PIN_SOURCE_HALL_W) << 0));
     return l_HALL_sate;
 }
 
