@@ -29,7 +29,7 @@ void g_config_BRAKE(void)
 }
 
 
-static u8 g_break_state = 1;
+static u32 g_break_state = 1;
 void g_update_brake_state(void)
 {
 	u8 brake_state;
@@ -45,7 +45,7 @@ void g_update_brake_state(void)
 	//printf("g_break_state = %d\r\n",g_break_state);
 }
 
-__inline u8 g_get_brake_state(void)
+__inline u32 g_get_brake_state(void)
 {
 	return g_break_state;
 }

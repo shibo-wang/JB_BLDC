@@ -6,6 +6,7 @@
 typedef signed int  s32;
 typedef signed short s16;
 typedef signed char  s8;
+typedef float		f32;
 
 typedef signed int  const sc32;  /* Read Only */
 typedef signed short const sc16;  /* Read Only */

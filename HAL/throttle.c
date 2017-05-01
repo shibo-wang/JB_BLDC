@@ -69,22 +69,25 @@ void g_config_throttle(void)
 	config_throttle_GPIO();
 	config_throttle_ADC();
 }
-__IO u16  ADC1ConvertedValue = 0;
+
+u32 g_throttle_val_filter = 0;
 void g_update_throttle(void)
 {
-	static u32 loop_cnt = 0;
+	static f32 k_filter = 0.1;
+	u16 g_throttle_val_new = 0;
 	if (ADC_GetFlagStatus(THROTTLE_ADC_NUM, ADC_FLAG_EOC) == SET)
 	{
 		 /* Get ADC1 converted data */
-   		ADC1ConvertedValue =ADC_GetConversionValue(ADC1);
-        //printf("%d %d \r\n",loop_cnt++,ADC1ConvertedValue); 
+   		g_throttle_val_new =ADC_GetConversionValue(ADC1);
+		g_throttle_val_filter = (u32)(k_filter * g_throttle_val_new + (1-k_filter)*g_throttle_val_filter);
+        //printf("n %u f %u \r\n",g_throttle_val_new,g_throttle_val_filter); 
 	}
 	
 }
 
-void g_get_throttle(void)
+u32 g_get_throttle(void)
 {
-
+	return g_throttle_val_filter;
 }
 
 
