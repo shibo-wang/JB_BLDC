@@ -1,10 +1,10 @@
 /**
   ******************************************************************************
-  * @file      startup_stm32f0xx_ld.s
+  * @file      startup_stm32f051.s
   * @author    MCD Application Team
-  * @version   V1.2.0
-  * @date      31-July-2013
-  * @brief     STM32F0xx Low-density devices vector table for Atollic toolchain.
+  * @version   V1.5.0
+  * @date      05-December-2014
+  * @brief     STM32F051 Devices vector table for Atollic toolchain.
   *            This module performs:
   *                - Set the initial SP
   *                - Set the initial PC == Reset_Handler,
@@ -17,7 +17,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT 2013 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT 2014 STMicroelectronics</center></h2>
   *
   * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
   * You may not use this file except in compliance with the License.
@@ -54,16 +54,6 @@ defined in linker script */
 /* end address for the .bss section. defined in linker script */
 .word _ebss
 
-.equ  BootRAM, 0xF108F85F
-/**
- * @brief  This is the code that gets called when the processor first
- *          starts execution following a reset event. Only the absolutely
- *          necessary set is performed, after which the application
- *          supplied main() routine is called.
- * @param  None
- * @retval : None
-*/
-
   .section .text.Reset_Handler
   .weak Reset_Handler
   .type Reset_Handler, %function
@@ -71,6 +61,27 @@ Reset_Handler:
   ldr   r0, =_estack
   mov   sp, r0          /* set stack pointer */
 
+/*Check if boot space corresponds to test memory*/
+ 
+    LDR R0,=0x00000004
+    LDR R1, [R0]
+    LSRS R1, R1, #24
+    LDR R2,=0x1F
+    CMP R1, R2
+    BNE ApplicationStart
+
+ /*SYSCFG clock enable*/
+
+    LDR R0,=0x40021018
+    LDR R1,=0x00000001
+    STR R1, [R0]
+
+/*Set CFGR1 register with flash memory remap at address 0*/
+    LDR R0,=0x40010000
+    LDR R1,=0x00000000
+    STR R1, [R0]
+
+ApplicationStart:
 /* Copy the data segment initializers from flash to SRAM */
   movs r1, #0
   b LoopCopyDataInit
@@ -138,10 +149,10 @@ Infinite_Loop:
   .type g_pfnVectors, %object
   .size g_pfnVectors, .-g_pfnVectors
 
-
 g_pfnVectors:
   .word _estack
   .word Reset_Handler
+
   .word NMI_Handler
   .word HardFault_Handler
   .word 0
@@ -156,6 +167,8 @@ g_pfnVectors:
   .word 0
   .word PendSV_Handler
   .word SysTick_Handler
+
+
   .word WWDG_IRQHandler
   .word PVD_IRQHandler
   .word RTC_IRQHandler
@@ -164,33 +177,31 @@ g_pfnVectors:
   .word EXTI0_1_IRQHandler
   .word EXTI2_3_IRQHandler
   .word EXTI4_15_IRQHandler
-  .word 0
+  .word TS_IRQHandler
   .word DMA1_Channel1_IRQHandler
   .word DMA1_Channel2_3_IRQHandler
   .word DMA1_Channel4_5_IRQHandler
-  .word ADC1_IRQHandler 
+  .word ADC1_COMP_IRQHandler 
   .word TIM1_BRK_UP_TRG_COM_IRQHandler
   .word TIM1_CC_IRQHandler
   .word TIM2_IRQHandler
   .word TIM3_IRQHandler
-  .word 0
+  .word TIM6_DAC_IRQHandler
   .word 0  
   .word TIM14_IRQHandler
-  .word 0
+  .word TIM15_IRQHandler
   .word TIM16_IRQHandler
   .word TIM17_IRQHandler
   .word I2C1_IRQHandler
-  .word 0
+  .word I2C2_IRQHandler
   .word SPI1_IRQHandler
-  .word 0
+  .word SPI2_IRQHandler
   .word USART1_IRQHandler
+  .word USART2_IRQHandler
   .word 0
+  .word CEC_IRQHandler
   .word 0
-  .word 0
-  .word 0
-  .word BootRAM          /* @0x108. This is for boot in RAM mode for 
-                            STM32F0xx devices. */
-
+ 
 /*******************************************************************************
 *
 * Provide weak aliases for each Exception handler to the Default_Handler.
@@ -238,6 +249,9 @@ g_pfnVectors:
   .weak EXTI4_15_IRQHandler
   .thumb_set EXTI4_15_IRQHandler,Default_Handler
   
+  .weak TS_IRQHandler
+  .thumb_set TS_IRQHandler,Default_Handler
+  
   .weak DMA1_Channel1_IRQHandler
   .thumb_set DMA1_Channel1_IRQHandler,Default_Handler
   
@@ -247,8 +261,8 @@ g_pfnVectors:
   .weak DMA1_Channel4_5_IRQHandler
   .thumb_set DMA1_Channel4_5_IRQHandler,Default_Handler
   
-  .weak ADC1_IRQHandler
-  .thumb_set ADC1_IRQHandler,Default_Handler
+  .weak ADC1_COMP_IRQHandler
+  .thumb_set ADC1_COMP_IRQHandler,Default_Handler
    
   .weak TIM1_BRK_UP_TRG_COM_IRQHandler
   .thumb_set TIM1_BRK_UP_TRG_COM_IRQHandler,Default_Handler
@@ -262,8 +276,14 @@ g_pfnVectors:
   .weak TIM3_IRQHandler
   .thumb_set TIM3_IRQHandler,Default_Handler
   
+  .weak TIM6_DAC_IRQHandler
+  .thumb_set TIM6_DAC_IRQHandler,Default_Handler
+  
   .weak TIM14_IRQHandler
   .thumb_set TIM14_IRQHandler,Default_Handler
+  
+  .weak TIM15_IRQHandler
+  .thumb_set TIM15_IRQHandler,Default_Handler
   
   .weak TIM16_IRQHandler
   .thumb_set TIM16_IRQHandler,Default_Handler
@@ -274,12 +294,23 @@ g_pfnVectors:
   .weak I2C1_IRQHandler
   .thumb_set I2C1_IRQHandler,Default_Handler
   
+  .weak I2C2_IRQHandler
+  .thumb_set I2C2_IRQHandler,Default_Handler
+  
   .weak SPI1_IRQHandler
   .thumb_set SPI1_IRQHandler,Default_Handler
   
+  .weak SPI2_IRQHandler
+  .thumb_set SPI2_IRQHandler,Default_Handler
+  
   .weak USART1_IRQHandler
   .thumb_set USART1_IRQHandler,Default_Handler
-
+  
+  .weak USART2_IRQHandler
+  .thumb_set USART2_IRQHandler,Default_Handler
+  
+  .weak CEC_IRQHandler
+  .thumb_set CEC_IRQHandler,Default_Handler
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
 

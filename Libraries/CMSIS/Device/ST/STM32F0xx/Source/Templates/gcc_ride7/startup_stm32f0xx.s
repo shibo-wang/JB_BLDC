@@ -2,9 +2,9 @@
   ******************************************************************************
   * @file      startup_stm32f0xx.s
   * @author    MCD Application Team
-  * @version   V1.2.0
-  * @date      31-July-2013
-  * @brief     STM32F0xx Medium-density devices vector table for RIDE7 toolchain.
+  * @version   V1.5.0
+  * @date      05-December-2014
+  * @brief     STM32F0xx Devices vector table for RIDE7 toolchain.
   *            This module performs:
   *                - Set the initial SP
   *                - Set the initial PC == Reset_Handler,
@@ -17,7 +17,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT 2013 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT 2014 STMicroelectronics</center></h2>
   *
   * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
   * You may not use this file except in compliance with the License.
@@ -71,6 +71,27 @@ Reset_Handler:
   ldr   r0, =_estack
   mov   sp, r0          /* set stack pointer */
 
+/*Check if boot space corresponds to test memory*/
+ 
+    LDR R0,=0x00000004
+    LDR R1, [R0]
+    LSRS R1, R1, #24
+    LDR R2,=0x1F
+    CMP R1, R2
+    BNE ApplicationStart
+
+ /*SYSCFG clock enable*/
+
+    LDR R0,=0x40021018
+    LDR R1,=0x00000001
+    STR R1, [R0]
+
+/*Set CFGR1 register with flash memory remap at address 0*/
+    LDR R0,=0x40010000
+    LDR R1,=0x00000000
+    STR R1, [R0]
+
+ApplicationStart:
 /* Copy the data segment initializers from flash to SRAM */
   movs r1, #0
   b LoopCopyDataInit
