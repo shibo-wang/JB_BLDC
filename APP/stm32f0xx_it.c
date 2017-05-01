@@ -11,6 +11,8 @@
 #include "init.h"
 #include "jb_config.h"
 #include "brake.h"
+#include "throttle.h"
+
 
 
 //extern CanRxMsg tmp_CanRxMessage;
@@ -102,9 +104,9 @@ void SysTick_Handler(void)
 	flash_led(tick_times);
 	if (tick_times % 1000 == 0)
 	{
-		g_update_brake_state();
+		g_update_brake_state();	
 	}
-
+	g_update_throttle();
 }
 
 

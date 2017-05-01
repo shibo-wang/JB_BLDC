@@ -2,6 +2,7 @@
 #include "init.h"
 #include "stm32f0xx_adc.h"
 #include "jb_config.h"
+#include "stdio.h"
 //static int TimingDelay = 0;
 
 volatile struct {
@@ -105,7 +106,6 @@ int main(void)
 {
   RCC_GetClocksFreq(&ClockInfo);
   g_init_all(); 
-  SysTick_Config(CKTIM/TICK_PERIOD); 
   enable_PWM_TIM();
   while (1)
   { 

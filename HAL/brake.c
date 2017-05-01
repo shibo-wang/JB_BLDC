@@ -1,3 +1,4 @@
+#include <stm32f0xx.h>
 #include <stdio.h>
 #include "brake.h"
 #include "jb_config.h"
