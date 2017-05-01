@@ -36,7 +36,7 @@
 
 #define PWM_PRSC ((u8)0)
 /****	Power devices switching frequency  ****/
-#define PWM_FREQ ((u16) 20000) // in Hz  (N.b.: pattern type is center aligned)
+#define PWM_FREQ ((u16) 30000) // in Hz  (N.b.: pattern type is center aligned)
 /* Resolution: 1Hz */                            
 #define PWM_PERIOD ((u16) (CKTIM / (u32)( PWM_FREQ *(PWM_PRSC+1)))) 
 
