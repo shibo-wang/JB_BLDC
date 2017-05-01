@@ -10,6 +10,7 @@
 #include "stm32f0xx_it.h"
 #include "init.h"
 #include "jb_config.h"
+#include "brake.h"
 
 
 //extern CanRxMsg tmp_CanRxMessage;
@@ -80,18 +81,30 @@ void PendSV_Handler(void)
   * @param  None
   * @retval None
   */
-void SysTick_Handler(void)
+
+void flash_led(u32 delay_ms)
 {
-    static    u16 tick_times;
-    if (++tick_times > 1000) tick_times = 0;
-    if (tick_times < 500)
+    if ((delay_ms % TICK_PERIOD) < 500)
     {
         LED_G(1); 
     }
     else 
     {
         LED_G(0); 
-    }  
+    }	
+}
+
+
+void SysTick_Handler(void)
+{
+    static u32 tick_times;	
+	tick_times++;
+	flash_led(tick_times);
+	if (tick_times % 1000 == 0)
+	{
+		g_update_brake_state();
+	}
+
 }
 
 

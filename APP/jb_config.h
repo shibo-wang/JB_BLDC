@@ -33,6 +33,7 @@
 // TIM1 
  /////////////////////// PWM Peripheral Input clock ////////////////////////////
 #define CKTIM	((u32)48000000uL) 	/* Silicon running at 72MHz Resolution: 1Hz */
+#define TICK_PERIOD		1000		//1ms
 
 #define PWM_PRSC ((u8)0)
 /****	Power devices switching frequency  ****/
@@ -68,6 +69,12 @@
 #define CCU_GPIO_PORT_UVW	GPIOB
 // CCU DMA
 #define CCU_DMA_CHANNEL		DMA1_Channel1
+
+// BRAKE GPIO IN
+#define GPIO_PIN_BREAKE 	GPIO_Pin_11
+#define GPIO_PORT_BREAKE 	GPIOA
+
+
 
 
 

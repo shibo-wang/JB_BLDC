@@ -372,6 +372,13 @@ static void config_CCU_GPIO()
 	GPIO_InitTypeDef	GPIO_InitStructure;
 
 	GPIO_StructInit(&GPIO_InitStructure);
+
+	/*UVW current*/
+	GPIO_InitStructure.GPIO_Pin = CCU_GPIO_PIN_UVW ;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;
+	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL ;
+	GPIO_Init(CCU_GPIO_PORT_UVW, &GPIO_InitStructure);	
+	
 	/*U current*/
 	GPIO_InitStructure.GPIO_Pin = CCU_GPIO_PIN_U ;
 	GPIO_Init(CCU_GPIO_PORT_U, &GPIO_InitStructure);	
@@ -380,13 +387,7 @@ static void config_CCU_GPIO()
 	GPIO_Init(CCU_GPIO_PORT_V, &GPIO_InitStructure);	
 	/*W current*/
 	GPIO_InitStructure.GPIO_Pin = CCU_GPIO_PIN_W ;
-	GPIO_Init(CCU_GPIO_PORT_W, &GPIO_InitStructure);
-
-	/*UVW current*/
-	GPIO_InitStructure.GPIO_Pin = CCU_GPIO_PIN_UVW ;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;
-	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL ;
-	GPIO_Init(CCU_GPIO_PORT_UVW, &GPIO_InitStructure);	
+	GPIO_Init(CCU_GPIO_PORT_W, &GPIO_InitStructure);	
 }
 
 static void config_CCU_ADC()
@@ -476,6 +477,8 @@ void uComOnChipInitial(void)
    	config_HALL();
     config_PWM();
     config_LED();
+	g_config_BRAKE();
+	printf("all the peripheral init OK\r\n");
 //    config_CCU();
 }
 
