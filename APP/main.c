@@ -105,7 +105,7 @@ int main(void)
 {
   RCC_GetClocksFreq(&ClockInfo);
   uComOnChipInitial(); 
-  SysTick_Config(48000); 
+  SysTick_Config(CKTIM/1000); 
   enable_PWM_TIM();
   while (1)
   { 
