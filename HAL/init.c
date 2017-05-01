@@ -471,7 +471,7 @@ void config_CCU()
 
 
 
-void uComOnChipInitial(void) 
+void g_init_all(void) 
 {
     config_UART();
    	config_HALL();

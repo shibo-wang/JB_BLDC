@@ -23,7 +23,7 @@ void GPIOA_Pin_8_OUT_Init(void);
 void  ADC_INIT(void);
 int Get_Adc(char ch);
 int Get_Adc_Average(u32 ch,char count); 
-void uComOnChipInitial(void);
+void g_init_all(void);
 void Hall_SW(void);
 
 

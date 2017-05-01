@@ -27,7 +27,7 @@ int ek=0,ek1=0,ek2=0;
 float duk;
 int du;
 int ekSpeed=0;
-int motor_statue=0;
+int motor_statue=0 ;
 char startcnt=0;
 extern int My_PWM;
 extern u16 g_HALL_state,time;
@@ -104,7 +104,7 @@ RCC_ClocksTypeDef ClockInfo;
 int main(void)
 {
   RCC_GetClocksFreq(&ClockInfo);
-  uComOnChipInitial(); 
+  g_init_all(); 
   SysTick_Config(CKTIM/TICK_PERIOD); 
   enable_PWM_TIM();
   while (1)
