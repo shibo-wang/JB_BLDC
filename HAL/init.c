@@ -478,6 +478,7 @@ void g_init_all(void)
     config_PWM();
     config_LED();
 	g_config_BRAKE();
+	SysTick_Config(CKTIM/TICK_PERIOD); 
 	printf("all the peripheral init OK\r\n");
 //    config_CCU();
 }

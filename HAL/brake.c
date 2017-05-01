@@ -3,7 +3,13 @@
 #include "jb_config.h"
 
 
-void g_config_BRAKE(void)
+void config_BRAKE_RCC(void)
+{
+	/* GPIOA Periph clock enable */
+	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA, ENABLE); 	
+}
+
+void config_BRAKE_GPIO(void)
 {
 	GPIO_InitTypeDef	GPIO_InitStructure;
 
@@ -13,9 +19,12 @@ void g_config_BRAKE(void)
 	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
  	GPIO_Init(GPIO_PORT_BREAKE, &GPIO_InitStructure);
+}
 
-	/* GPIOA Periph clock enable */
-	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA, ENABLE); 	
+void g_config_BRAKE(void)
+{
+    config_BRAKE_RCC();
+    config_BRAKE_GPIO();
 }
 
 
