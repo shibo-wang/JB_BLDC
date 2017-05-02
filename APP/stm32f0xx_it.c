@@ -12,6 +12,7 @@
 #include "jb_config.h"
 #include "brake.h"
 #include "throttle.h"
+#include "motor_control.h"
 
 
 
@@ -35,7 +36,6 @@ bool g_motor_direction;
 u16 g_HALL_state;
 u16 time=0;
 
-extern u16 motor_statue;
 extern unsigned int g_pwm_value;
 u16 My_PWM=1000;
 extern int state,state1,state2,state3,g_HALL_intterupt_cnt,counter2,counter3,speed_1,check_run;
@@ -97,6 +97,7 @@ void flash_led(u32 delay_ms)
 }
 
 
+
 void SysTick_Handler(void)
 {
     static u32 tick_times;	
@@ -109,14 +110,12 @@ void SysTick_Handler(void)
 	g_update_throttle();
 }
 
-
 void update_bridge_state(void)
 { 
     u16 l_pwm_value = 0;
     u16 l_hall_state = 0;;
     l_pwm_value = g_pwm_value;
     l_hall_state = g_HALL_state;
-		motor_statue=1;
     if (l_pwm_value < PWM_MIN_VALUE || l_pwm_value > PWM_MAX_VALUE)
     {
         printf("error: invalid pwm value: %d",l_pwm_value);
@@ -127,7 +126,6 @@ void update_bridge_state(void)
         printf("error: invalid HALL value: %d",l_hall_state);
         return;
     }
-    
 	switch(g_HALL_state)
 	{
         case 5:    
@@ -176,6 +174,10 @@ void update_bridge_state(void)
             printf("error: invalid HALL value");
     		break;
 	}
+    if (g_get_brake_state())
+    {
+		stop_motor();
+	}
 }
 
 
@@ -198,6 +200,7 @@ void handle_HALL_interrupt(void)
     }
     update_bridge_state();
     g_HALL_intterupt_cnt++;
+	//printf("g_HALL_intterupt_cnt = %d\r\n",g_HALL_intterupt_cnt);
 
 }
 

@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include "brake.h"
 #include "jb_config.h"
-
+#include "motor_control.h"
 
 void config_BRAKE_RCC(void)
 {
@@ -29,7 +29,7 @@ void g_config_BRAKE(void)
 }
 
 
-static u32 g_break_state = 1;
+static u32 g_break_state = 0;
 void g_update_brake_state(void)
 {
 	u8 brake_state;
@@ -37,6 +37,7 @@ void g_update_brake_state(void)
 	if (brake_state == 0)
 	{
 		g_break_state = 1;
+		stop_motor();
 	}
 	else
 	{

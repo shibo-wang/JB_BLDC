@@ -28,7 +28,6 @@ int ek=0,ek1=0,ek2=0;
 float duk;
 int du;
 int ekSpeed=0;
-int motor_statue=0 ;
 char startcnt=0;
 extern int My_PWM;
 extern u16 g_HALL_state,time;
@@ -126,85 +125,8 @@ int main(void)
         }
 		else     
         {
-        
 			  startcnt=37;
-			  #if 0 
-			  My_PWM=2000;  
-			  for(i=0;i<100000;i++);       
-			  My_PWM+=pid(speed_1,aim_speed)/((speed_1/My_PWM)+1);	       
-			  if(My_PWM<=0) 			  
-			  My_PWM=0;
-			  if(My_PWM>5000)			  
-			  My_PWM=5000;
-			#endif
-#if 0
-
-			    /* Test DMA1 TC flag */    
-				while((DMA_GetFlagStatus(DMA1_FLAG_TC1)) == RESET );         
-				/* Clear DMA TC flag */    
-				DMA_ClearFlag(DMA1_FLAG_TC1);
-
-				printf("adc %d %d %d %d \r\n",
-					RegularConvData_Tab[0],RegularConvData_Tab[1],RegularConvData_Tab[2],RegularConvData_Tab[3]);
-				#endif
-	 
         }
-  
-
-  }
-
-  while(1)
-  { 	
-  // keytemp= key_con(); 
- 
-	if(keytemp==2)
-	{
-		     TIM_Cmd(TIM1, DISABLE);
-		     TIM_CtrlPWMOutputs(TIM1, DISABLE); 		
-	}
-	aim_speed=Get_Adc_Average(ADC_Channel_13,10)-2000; 
-	if(aim_speed<50) aim_speed=50;
-  if(aim_speed>2500 ) aim_speed=2500;
-  if(keytemp==5)
-  {
-		if(time >1800)
-		{
-			time=0;
-			if(flagccw==0)
-		   {
-			  g_motor_direction=1; 		
-		   }
-		else
-		   {
-			  g_motor_direction=0;		  
-		   }
-		flagccw=~flagccw;
-		}	  
-}
- 
-  if(startcnt<36)  //换相6次后启动
-	{
-	if(time>10)
-	 { 
-		update_bridge_state();
-		g_HALL_state++;
-	  if(g_HALL_state>6) 	g_HALL_state=1;
-		time=0;
-	}
-	 startcnt++; 
-	}
-  else
-	{
-		startcnt=37;
-		for(i=0;i<100000;i++);
-		My_PWM+=pid(speed_1,aim_speed)/((speed_1/My_PWM)+1);	
-		if(My_PWM<=0)			    
-		My_PWM=0;
-		if(My_PWM>5000)			    
-		My_PWM=5000;
-		
-	}
-	 
   }
 }
 
