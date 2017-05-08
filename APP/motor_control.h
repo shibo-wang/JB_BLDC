@@ -3,9 +3,12 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "jb_types.h"
+void g_BLDC_control(void);
+void g_init_BLDC_info(void);
 
 
-void stop_motor(void);
+extern BLDC_info_struct BLDC_info_data;
+
 
 #endif
 

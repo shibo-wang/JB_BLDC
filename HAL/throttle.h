@@ -5,8 +5,6 @@
 #include "jb_types.h"
 
 void g_config_throttle(void);
-void g_update_throttle(void);
-u32 g_get_throttle(void);
-
+void g_update_throttle(throttle_info_struct* p_throttle_info);
 #endif
 

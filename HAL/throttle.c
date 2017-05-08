@@ -70,24 +70,39 @@ void g_config_throttle(void)
 	config_throttle_ADC();
 }
 
-u32 g_throttle_val_filter = 0;
-void g_update_throttle(void)
+void g_update_throttle(throttle_info_struct* p_throttle_info)
 {
 	static f32 k_filter = 0.1;
-	u16 g_throttle_val_new = 0;
+	static u32 offset_sum = 0;
+	static u32 offset_cnt = 0;
+	static u32 offset_max_cnt = 50;
+	static u32 ADC_MAX_VAL = 4096;
 	if (ADC_GetFlagStatus(THROTTLE_ADC_NUM, ADC_FLAG_EOC) == SET)
 	{
 		 /* Get ADC1 converted data */
-   		g_throttle_val_new =ADC_GetConversionValue(ADC1);
-		g_throttle_val_filter = (u32)(k_filter * g_throttle_val_new + (1-k_filter)*g_throttle_val_filter);
-        //printf("n %u f %u \r\n",g_throttle_val_new,g_throttle_val_filter); 
+   		p_throttle_info->raw_in =ADC_GetConversionValue(ADC1);
+		p_throttle_info->filter_val = (u32)(k_filter * p_throttle_info->raw_in + (1-k_filter)*(p_throttle_info->filter_val));
+		if (p_throttle_info->offset >= 0 && (p_throttle_info->filter_val > p_throttle_info->offset))
+		{
+			p_throttle_info->acc = (p_throttle_info->filter_val - p_throttle_info->offset)/(ADC_MAX_VAL - p_throttle_info->offset);
+		}
+		else
+		{
+			if (offset_cnt < offset_max_cnt)
+			{
+				++offset_cnt;
+				offset_sum += p_throttle_info->raw_in;
+			}
+			else
+			{
+				p_throttle_info->offset = (u32)(offset_sum / offset_max_cnt) + 100;
+			}
+		}	
+        //printf("n %u f %u \r\n",g_throttle_val_new,*p_throttle_in); 
 	}
-	
 }
 
-u32 g_get_throttle(void)
-{
-	return g_throttle_val_filter;
-}
+
+
 
 

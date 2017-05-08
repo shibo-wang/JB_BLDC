@@ -23,6 +23,8 @@
 #include "jb_config.h"
 #include "brake.h"
 #include "throttle.h"
+#include "motor_control.h"
+
 
 
  TIM_TimeBaseInitTypeDef TIM1_TimeBaseStructure;
@@ -482,6 +484,8 @@ void g_init_all(void)
 	g_config_BRAKE();
 	g_config_throttle();
 	SysTick_Config(CKTIM/TICK_PERIOD); 
+	g_init_BLDC_info();
+	BLDC_info_data.init_ok = TRUE;
 	printf("all the peripheral init OK\r\n");
 //    config_CCU();
 }

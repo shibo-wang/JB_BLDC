@@ -30,12 +30,11 @@ int du;
 int ekSpeed=0;
 char startcnt=0;
 extern int My_PWM;
-extern u16 g_HALL_state,time;
 extern char g_motor_direction; 
 extern void TIM1_Configuration1(void);
 extern void update_bridge_state(void);
 
-int state,state1,state2,state3,g_HALL_intterupt_cnt,counter2,counter3,speed_1,check_run,speed_code;
+int state,state1,state2,state3,counter2,counter3,speed_1,check_run,speed_code;
 s32 aim_speed;
 short ADC_ConvertedValue[5]={0,0,0,0,0};
 //form main
@@ -88,11 +87,7 @@ int pid(int nonce,int aim)
 	return (uk);
 }
 
-void enable_PWM_TIM()
-{
-    TIM_Cmd(TIM1, ENABLE);
-    TIM_CtrlPWMOutputs(TIM1, ENABLE); 
-}
+
 //=============================================================================
 //文件名称：main
 //功能概要：主函数
@@ -105,28 +100,9 @@ int main(void)
 {
   RCC_GetClocksFreq(&ClockInfo);
   g_init_all(); 
-  enable_PWM_TIM();
   while (1)
   { 
-   //   LED_G(0);
-	    if(startcnt<36)  //换相6次后启动
-        {         
-		    if(time>10)
-		    {
-			    update_bridge_state();     
-			    g_HALL_state++;
-			    if(g_HALL_state>6) 
-                {         
-                    g_HALL_state=1;                      
-                 }
-	            time=0; 
-		    }    
-		    startcnt++; 
-        }
-		else     
-        {
-			  startcnt=37;
-        }
+
   }
 }
 

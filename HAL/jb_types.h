@@ -55,5 +55,95 @@ typedef enum {ERROR = 0, SUCCESS = !ERROR} ErrorStatus;
 #define S32_MAX    ((s32)2147483647)
 #define S32_MIN    ((s32)-2147483648)
 
+
+typedef enum
+{
+  BLDC_IDLE 			   	= 0x0,
+  BLDC_INACTIVE 		   	= 0x1,
+  BLDC_ALIGN			 	= 0x2,
+  BLDC_SPEED_LOOP_RUNNING  	= 0x04,  
+  BLDC_FATAL_ERROR			= 0x40
+} BLDC_state_enum;
+
+typedef enum
+{
+  BRAKE_ON 			   		= 0x0,
+  BRAKE_RELEASE 		   	= 0x1
+} brake_state_enum;
+
+
+typedef struct
+{
+	u32 brake_in;
+	u32 brake_on_cnt;
+	u32 brake_release_cnt;
+	brake_state_enum brake_state;
+} brake_info_struct;
+
+typedef struct
+{
+	f32 targe_spd;
+	f32 set_spd;
+	f32 acc;
+}spd_reg_struct;
+
+typedef struct
+{
+	u32 raw_in;
+	u32 filter_val;
+	s32 offset;
+	f32 acc;
+}throttle_info_struct;
+
+
+typedef enum
+{
+  TIMER_DISABLE 	= 0x0,
+  TIMER_ENABLE 		= 0x1
+} timer_state_eum;
+
+typedef struct
+{
+	timer_state_eum timer_state;
+	u32 pwm_val;
+}PWM_info_stuct;
+
+typedef enum
+{
+	INVALID_HALL_IN = 0x1,
+	INVALID_PWM_VAL = 0x2
+}error_state_eum;
+
+typedef enum
+{
+	LED_OFF = 0,
+	LED_ON
+}led_state_enum;
+
+typedef struct
+{
+	u32 flash_interval_ms;
+	led_state_enum led_state;
+}led_info_struct;
+
+typedef struct
+ {
+	brake_info_struct brake_info;
+  	throttle_info_struct throttle_info;
+   	BLDC_state_enum BLDC_State;//״̬
+   	spd_reg_struct spd_reg;
+   	PWM_info_stuct pwm_info;
+   	error_state_eum error_code;
+   	led_info_struct led_info;
+
+   	u16 trigger_events_table;
+   	u32 *speedActValue;
+   	u32 *speedSetPoint;
+   	u32 SpeedTargetValue;
+   	u16 error_delay_time;
+   	bool init_ok;
+ } BLDC_info_struct; 
+
+
 #endif
 

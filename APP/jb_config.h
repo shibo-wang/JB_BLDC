@@ -41,8 +41,8 @@
 /* Resolution: 1Hz */                            
 #define PWM_PERIOD ((u16) (CKTIM / (u32)( PWM_FREQ *(PWM_PRSC+1)))) 
 
-#define PWM_MAX_VALUE (PWM_PERIOD-100)
-#define PWM_MIN_VALUE (60)
+#define PWM_MAX_VALUE (PWM_PERIOD)
+#define PWM_MIN_VALUE (1)
 
 // UART
 #define GPIO_PIN_UART_RX    GPIO_Pin_7
