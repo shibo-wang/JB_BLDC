@@ -92,6 +92,8 @@ typedef struct
 	u32 raw_in;
 	u32 filter_val;
 	s32 offset;
+	u32 scale;
+	f32 acc_offset;
 	f32 acc;
 }throttle_info_struct;
 
@@ -128,6 +130,7 @@ typedef struct
 
 typedef struct
  {
+  	bool init_ok;
 	brake_info_struct brake_info;
   	throttle_info_struct throttle_info;
    	BLDC_state_enum BLDC_State;//״̬
@@ -136,12 +139,6 @@ typedef struct
    	error_state_eum error_code;
    	led_info_struct led_info;
 
-   	u16 trigger_events_table;
-   	u32 *speedActValue;
-   	u32 *speedSetPoint;
-   	u32 SpeedTargetValue;
-   	u16 error_delay_time;
-   	bool init_ok;
  } BLDC_info_struct; 
 
 

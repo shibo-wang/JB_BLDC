@@ -82,9 +82,16 @@ void g_update_throttle(throttle_info_struct* p_throttle_info)
 		 /* Get ADC1 converted data */
    		p_throttle_info->raw_in =ADC_GetConversionValue(ADC1);
 		p_throttle_info->filter_val = (u32)(k_filter * p_throttle_info->raw_in + (1-k_filter)*(p_throttle_info->filter_val));
-		if (p_throttle_info->offset >= 0 && (p_throttle_info->filter_val > p_throttle_info->offset))
+		if (p_throttle_info->offset >= 0)
 		{
-			p_throttle_info->acc = (p_throttle_info->filter_val - p_throttle_info->offset)/(ADC_MAX_VAL - p_throttle_info->offset);
+			if (p_throttle_info->filter_val > p_throttle_info->offset)
+      		{
+        		p_throttle_info->acc = (f32)(p_throttle_info->filter_val - p_throttle_info->offset)/p_throttle_info->scale;
+      		}
+      		else
+      		{
+        		p_throttle_info->acc = 0.0;
+      		}
 		}
 		else
 		{
@@ -96,6 +103,8 @@ void g_update_throttle(throttle_info_struct* p_throttle_info)
 			else
 			{
 				p_throttle_info->offset = (u32)(offset_sum / offset_max_cnt) + 100;
+				p_throttle_info->scale = (ADC_MAX_VAL - p_throttle_info->offset);
+				p_throttle_info->acc_offset = (f32)p_throttle_info->offset / ADC_MAX_VAL;
 			}
 		}	
         //printf("n %u f %u \r\n",g_throttle_val_new,*p_throttle_in); 
