@@ -59,7 +59,7 @@ typedef enum {ERROR = 0, SUCCESS = !ERROR} ErrorStatus;
 typedef enum
 {
   BLDC_IDLE 			   	= 0x0,
-  BLDC_INACTIVE 		   	= 0x1,
+  BLDC_READY 		   		= 0x1,
   BLDC_ALIGN			 	= 0x2,
   BLDC_SPEED_LOOP_RUNNING  	= 0x04,  
   BLDC_FATAL_ERROR			= 0x40
@@ -129,10 +129,18 @@ typedef struct
 }led_info_struct;
 
 typedef struct
+{
+	u32 gpio_raw_in;
+	u32 hall_state;
+}hall_info_sruct;
+
+
+typedef struct
  {
   	bool init_ok;
 	brake_info_struct brake_info;
   	throttle_info_struct throttle_info;
+	hall_info_sruct hall_info;
    	BLDC_state_enum BLDC_State;//״̬
    	spd_reg_struct spd_reg;
    	PWM_info_stuct pwm_info;

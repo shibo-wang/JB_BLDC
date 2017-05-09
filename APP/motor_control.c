@@ -1,9 +1,11 @@
 #include <stm32f0xx_it.h>
 #include <string.h>
+#include <stdio.h>
 #include "motor_control.h"
 #include "brake.h"
 #include "throttle.h"
 #include "jb_config.h"
+
 
 BLDC_info_struct BLDC_info_data = {0};
 void enable_PWM_TIM(void);
@@ -33,6 +35,15 @@ void update_BLDC_out(void)
 		{
 			BLDC_info_data.led_info.flash_interval_ms = 250;
 		}
+	}
+	if (BLDC_info_data.pwm_info.pwm_val < PWM_MIN_VALUE || BLDC_info_data.pwm_info.pwm_val > PWM_MAX_VALUE)
+	{
+		if (BLDC_info_data.pwm_info.pwm_val < PWM_MIN_VALUE || BLDC_info_data.pwm_info.pwm_val > PWM_MAX_VALUE)
+    	{
+			BLDC_info_data.error_code |= INVALID_PWM_VAL;
+			printf("error: invalid pwm value: %d",BLDC_info_data.pwm_info.pwm_val);
+        	return;    
+    	}
 	}
 }
 
@@ -103,10 +114,10 @@ void check_motor_work_state(void)
 		case BLDC_IDLE:
 			if (TRUE == BLDC_info_data.init_ok)
 			{
-				BLDC_info_data.BLDC_State = BLDC_INACTIVE;
+				BLDC_info_data.BLDC_State = BLDC_READY;
 			}
 			break;
-		case BLDC_INACTIVE:
+		case BLDC_READY:
 			if (is_periperal_OK() && (BLDC_info_data.throttle_info.acc> 0))
 			{
 				align_time = 0;

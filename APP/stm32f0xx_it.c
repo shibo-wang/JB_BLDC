@@ -13,6 +13,7 @@
 #include "brake.h"
 #include "throttle.h"
 #include "motor_control.h"
+#include "hall.h"
 
 //extern CanRxMsg tmp_CanRxMessage;
 //extern CanTxMsg tmp_TxMessage;
@@ -30,7 +31,6 @@ u16 AD_value;
 u16 Count;
 u16 aaa;
 bool LED_15;
-bool g_motor_direction;
 u16 time=0;
 
 extern unsigned int g_pwm_value;
@@ -162,14 +162,7 @@ void update_bridge_state(u32 i_pwm_val,u32 i_hall_state)
 }
 
 
-__inline u16 get_HALL_GPIO_state(void)
-{
-    u16 l_HALL_sate = 0;
-    l_HALL_sate = ((((GPIO_PORT_HALL_UV->IDR & GPIO_PIN_HALL_U) >> GPIO_PIN_SOURCE_HALL_U) << 2) |
-				  (((GPIO_PORT_HALL_UV->IDR & GPIO_PIN_HALL_V) >> GPIO_PIN_SOURCE_HALL_V) << 1) | 
-				  (((GPIO_PORT_HALL_W->IDR & GPIO_PIN_HALL_W) >> GPIO_PIN_SOURCE_HALL_W) << 0));
-    return l_HALL_sate;
-}
+
 
 void handle_HALL_interrupt(void)
 {
@@ -178,25 +171,10 @@ void handle_HALL_interrupt(void)
 	static u32 HALL_intterupt_cnt = 0;
 	if (BLDC_info_data.pwm_info.timer_state == TIMER_ENABLE)
 	{
-		l_HALL_state = get_HALL_GPIO_state();
-	    //printf("l_HALL_state = %d\r\n",l_HALL_state);
-	    if(!g_motor_direction)
-	    {   
-	        l_HALL_state = 7 - l_HALL_state;
-	    }
-		if (l_HALL_state < 1 || l_HALL_state > 6)
-    	{
-			BLDC_info_data.error_code |= INVALID_HALL_IN;
-			printf("error: invalid HALL value: %d",l_HALL_state);
-        	return;
-    	}
+		g_update_HALL_state(&BLDC_info_data.hall_info);
 		l_pwm_value = BLDC_info_data.pwm_info.pwm_val;
-	    if (l_pwm_value < PWM_MIN_VALUE || l_pwm_value > PWM_MAX_VALUE)
-    	{
-			BLDC_info_data.error_code |= INVALID_PWM_VAL;
-			printf("error: invalid pwm value: %d",l_pwm_value);
-        	return;    
-    	}
+		l_HALL_state = BLDC_info_data.hall_info.hall_state;
+	    //printf("l_pwm_value = %d, l_HALL_state = %d\r\n",l_pwm_value,l_HALL_state);
 	    update_bridge_state(l_pwm_value,l_HALL_state);
 	}
     HALL_intterupt_cnt++;

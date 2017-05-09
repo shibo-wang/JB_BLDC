@@ -30,7 +30,7 @@ int du;
 int ekSpeed=0;
 char startcnt=0;
 extern int My_PWM;
-extern char g_motor_direction; 
+
 extern void TIM1_Configuration1(void);
 extern void update_bridge_state(void);
 
