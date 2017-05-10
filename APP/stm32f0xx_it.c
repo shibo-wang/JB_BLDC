@@ -14,6 +14,8 @@
 #include "throttle.h"
 #include "motor_control.h"
 #include "hall.h"
+#include "led.h"
+
 
 //extern CanRxMsg tmp_CanRxMessage;
 //extern CanTxMsg tmp_TxMessage;
@@ -81,22 +83,7 @@ void PendSV_Handler(void)
   * @retval None
   */
 
-void flash_led(u32 delay_ms)
-{
-    if ((delay_ms % BLDC_info_data.led_info.flash_interval_ms) == 0)
-    {
-		if (LED_ON == BLDC_info_data.led_info.led_state)
-		{
-			LED_G(0);
-			BLDC_info_data.led_info.led_state = LED_OFF;
-		}
-		else
-		{
-			LED_G(1);
-			BLDC_info_data.led_info.led_state = LED_ON;			
-		}	
-    }
-}
+
 
 
 
@@ -105,60 +92,7 @@ void SysTick_Handler(void)
     static u32 tick_times;
 	g_BLDC_control();
 	tick_times++;
-	flash_led(tick_times);
-}
-
-void update_bridge_state(u32 i_pwm_val,u32 i_hall_state)
-{ 
-   	switch(i_hall_state)
-	{
-        case 5:    
-            //U->V
-			TIM1->CCR1 = i_pwm_val; 
-      		TIM1->CCR2 = 0; 
-      		TIM1->CCR3 = 0;						            
-            TIM1->CCER = 0x0045;
-			break;
-        case 1:
-            //U->W
-			TIM1->CCR1 = i_pwm_val; 
-      		TIM1->CCR2 = 0; 
-      		TIM1->CCR3 = 0;				            
-			TIM1->CCER = 0x0405;
-			break;
-		case 3:	
-            //V->W
-			TIM1->CCR1 = 0; 
-      		TIM1->CCR2 = i_pwm_val; 
-      		TIM1->CCR3 = 0;				            
-			TIM1->CCER = 0x0450;
-			break;
-		case 2:
-	        //V->U
-			TIM1->CCR1 = 0; 
-      		TIM1->CCR2 = i_pwm_val; 
-      		TIM1->CCR3 = 0;		        
-			TIM1->CCER = 0x0054;			
-            break;
-		case 6:		
-            //W->U
-			TIM1->CCR1 = 0; 
-      		TIM1->CCR2 = 0; 
-      		TIM1->CCR3 = i_pwm_val;				            
-			TIM1->CCER = 0x0504;
-			break;
-		case 4:			
-	        //W->V
-			TIM1->CCR1 = 0; 
-      		TIM1->CCR2 = 0; 
-      		TIM1->CCR3 = i_pwm_val;					        
-			TIM1->CCER = 0x0540;
-			break;
-		default:
-            printf("error: invalid HALL value");
-    		break;
-	}
-
+	g_flash_led(tick_times);
 }
 
 
@@ -175,7 +109,7 @@ void handle_HALL_interrupt(void)
 		l_pwm_value = BLDC_info_data.pwm_info.pwm_val;
 		l_HALL_state = BLDC_info_data.hall_info.hall_state;
 	    //printf("l_pwm_value = %d, l_HALL_state = %d\r\n",l_pwm_value,l_HALL_state);
-	    update_bridge_state(l_pwm_value,l_HALL_state);
+	    g_update_bridge_state(l_pwm_value,l_HALL_state);
 	}
     HALL_intterupt_cnt++;
 	//printf("HALL_intterupt_cnt = %d\r\n",g_HALL_intterupt_cnt);

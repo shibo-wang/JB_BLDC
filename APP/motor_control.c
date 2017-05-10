@@ -100,6 +100,60 @@ void reg_spd(spd_reg_struct * p_spd)
 
 }
 
+void g_update_bridge_state(u32 i_pwm_val,u32 i_hall_state)
+{ 
+   	switch(i_hall_state)
+	{
+        case 5:    
+            //U->V
+			TIM1->CCR1 = i_pwm_val; 
+      		TIM1->CCR2 = 0; 
+      		TIM1->CCR3 = 0;						            
+            TIM1->CCER = 0x0045;
+			break;
+        case 1:
+            //U->W
+			TIM1->CCR1 = i_pwm_val; 
+      		TIM1->CCR2 = 0; 
+      		TIM1->CCR3 = 0;				            
+			TIM1->CCER = 0x0405;
+			break;
+		case 3:	
+            //V->W
+			TIM1->CCR1 = 0; 
+      		TIM1->CCR2 = i_pwm_val; 
+      		TIM1->CCR3 = 0;				            
+			TIM1->CCER = 0x0450;
+			break;
+		case 2:
+	        //V->U
+			TIM1->CCR1 = 0; 
+      		TIM1->CCR2 = i_pwm_val; 
+      		TIM1->CCR3 = 0;		        
+			TIM1->CCER = 0x0054;			
+            break;
+		case 6:		
+            //W->U
+			TIM1->CCR1 = 0; 
+      		TIM1->CCR2 = 0; 
+      		TIM1->CCR3 = i_pwm_val;				            
+			TIM1->CCER = 0x0504;
+			break;
+		case 4:			
+	        //W->V
+			TIM1->CCR1 = 0; 
+      		TIM1->CCR2 = 0; 
+      		TIM1->CCR3 = i_pwm_val;					        
+			TIM1->CCER = 0x0540;
+			break;
+		default:
+            printf("error: invalid HALL value");
+    		break;
+	}
+
+}
+
+
 
 void check_motor_work_state(void)
 {

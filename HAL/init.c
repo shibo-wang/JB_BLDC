@@ -25,6 +25,7 @@
 #include "throttle.h"
 #include "hall.h"
 #include "motor_control.h"
+#include "led.h"
 
 
 
@@ -268,30 +269,6 @@ void config_PWM()
 }
 
 
-void config_LED_RCC()
-{
-	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOB, ENABLE);  //使能GPIOA的时钟
-}
-
-void config_LED_GPIO()
-{
-    GPIO_InitTypeDef GPIO_InitStructure;
-    GPIO_StructInit(&GPIO_InitStructure);
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;  
-    //LED GPIO OUT
-    GPIO_InitStructure.GPIO_Pin = GPIO_PIN_LED_FLASH;
-    GPIO_Init(GPIO_PORT_LED_FLASH, &GPIO_InitStructure);             
-    //turn off LED
-    LED_G(0);    
-
-}
-
-void config_LED()
-{
-    config_LED_RCC();
-    config_LED_GPIO();
-}
 
 static void config_CCU_RCC()
 {
@@ -414,7 +391,7 @@ void g_init_all(void)
     config_UART();
    	g_config_HALL();
     config_PWM();
-    config_LED();
+    g_config_LED();
 	g_config_BRAKE();
 	g_config_throttle();
 	SysTick_Config(CKTIM/TICK_PERIOD); 

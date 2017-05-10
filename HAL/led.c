@@ -15,32 +15,52 @@
 // ----------------------------------------------------------------------
 // Include files
 // ----------------------------------------------------------------------
-#include    <stdio.h>
-#include	"..\video\video.h"
+#include <stm32f0xx.h>
+#include <stdio.h>
+#include "jb_config.h"
+#include "motor_control.h"
 
-// ----------------------------------------------------------------------
-// Static Global Data section variables
-// ----------------------------------------------------------------------
+#define	LED_G(x)		 	GPIO_WriteBit(GPIO_PORT_LED_FLASH, GPIO_PIN_LED_FLASH, (x)? Bit_SET : Bit_RESET)
 
-// ----------------------------------------------------------------------
-// External Variable 
-// ----------------------------------------------------------------------
-
-// ----------------------------------------------------------------------
-// Static Prototype Functions
-// ----------------------------------------------------------------------
-
-// ----------------------------------------------------------------------
-// Static functions
-// ----------------------------------------------------------------------
-
-//--------------------------------------------------------------------------------------------------------------------------
-void VOUTDisplayHandler(void)
+void config_LED_RCC()
 {
-	BYTE VOUT_FMT = stOutVideoInfo.frmt;
-
-//	VOUT_LED |= LO4BIT(~(VOUT_FMT/2+1));
-	LED_VOUT(LO4BIT(~(VOUT_FMT+1)));	//((~(VOUT_FMT+1))&0x0f)
+	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOB, ENABLE);  //使能GPIOA的时钟
 }
 
-/*  FILE_END_HERE */
+void config_LED_GPIO()
+{
+    GPIO_InitTypeDef GPIO_InitStructure;
+    GPIO_StructInit(&GPIO_InitStructure);
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;  
+    //LED GPIO OUT
+    GPIO_InitStructure.GPIO_Pin = GPIO_PIN_LED_FLASH;
+    GPIO_Init(GPIO_PORT_LED_FLASH, &GPIO_InitStructure);             
+    //turn off LED
+    LED_G(0);    
+
+}
+
+void g_config_LED(void)
+{
+    config_LED_RCC();
+    config_LED_GPIO();
+}
+
+void g_flash_led(u32 delay_ms)
+{
+    if ((delay_ms % BLDC_info_data.led_info.flash_interval_ms) == 0)
+    {
+		if (LED_ON == BLDC_info_data.led_info.led_state)
+		{
+			LED_G(0);
+			BLDC_info_data.led_info.led_state = LED_OFF;
+		}
+		else
+		{
+			LED_G(1);
+			BLDC_info_data.led_info.led_state = LED_ON;			
+		}	
+    }
+}
+

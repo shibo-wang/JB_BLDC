@@ -14,7 +14,6 @@
 /* Includes ------------------------------------------------------------------*/
 
 
-#define	LED_G(x)		 	GPIO_WriteBit(GPIO_PORT_LED_FLASH, GPIO_PIN_LED_FLASH, (x)? Bit_SET : Bit_RESET)
 
 void GPIOB_Pin_10_OUT_Init(void);
 void GPIOB_Pin_11_OUT_Init(void);
