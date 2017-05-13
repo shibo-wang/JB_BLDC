@@ -88,6 +88,7 @@ void g_update_HALL_state(hall_info_struct* p_hall_info)
 		printf("error: invalid HALL value: %d",p_hall_info->gpio_raw_in);
     	return;
 	}
+	p_hall_info->last_hall_state = p_hall_info->hall_state;
 	if(!g_motor_direction)
     {   
         p_hall_info->hall_state = 7 - p_hall_info->gpio_raw_in;
@@ -96,7 +97,14 @@ void g_update_HALL_state(hall_info_struct* p_hall_info)
 	{
 		p_hall_info->hall_state = p_hall_info->gpio_raw_in;
 	}
-
+	if (p_hall_info->last_hall_state != p_hall_info->hall_state)
+	{
+		p_hall_info->hall_has_changed = 1;
+	}
+	else
+	{
+		p_hall_info->hall_has_changed = 0;
+	}
 }
 
 
