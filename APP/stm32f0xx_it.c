@@ -116,27 +116,28 @@ void handle_HALL_interrupt(void)
 
 }
 
-void EXTI0_1_IRQHandler(void)
+void EXTI2_3_IRQHandler(void)
  {
     handle_HALL_interrupt();
-	if(EXTI_GetITStatus(EXTI_Line1)!= RESET)
+	if(EXTI_GetITStatus(EXTI_Line3)!= RESET)
 	{
-		EXTI_ClearITPendingBit(EXTI_Line1);
+		EXTI_ClearITPendingBit(EXTI_Line3);
 	}
 }
+
 
 
 void EXTI4_15_IRQHandler(void)
 {
 	handle_HALL_interrupt();
-	if(EXTI_GetITStatus(EXTI_Line15)!= RESET)
+	if(EXTI_GetITStatus(EXTI_Line4)!= RESET)
 	{
-		EXTI_ClearITPendingBit(EXTI_Line15);
+		EXTI_ClearITPendingBit(EXTI_Line4);
   
 	}
-	if(EXTI_GetITStatus(EXTI_Line10)!= RESET)
+	if(EXTI_GetITStatus(EXTI_Line5)!= RESET)
 	{
-		EXTI_ClearITPendingBit(EXTI_Line10);
+		EXTI_ClearITPendingBit(EXTI_Line5);
 
 	}
 
