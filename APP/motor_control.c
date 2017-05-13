@@ -5,6 +5,7 @@
 #include "brake.h"
 #include "throttle.h"
 #include "jb_config.h"
+#include "hall.h"
 
 
 BLDC_info_struct BLDC_info_data = {0};
@@ -34,7 +35,7 @@ void update_BLDC_out(void)
 		}
 		else if (BLDC_SPEED_LOOP_RUNNING == BLDC_info_data.BLDC_State)
 		{
-			set_spd = BLDC_info_data.spd_reg.set_spd;
+			set_spd = BLDC_info_data.loop_spd.set_spd;
 		}
 		BLDC_info_data.pwm_info.pwm_val = (1 - set_spd) * PWM_PERIOD;
 		pwm_val = BLDC_info_data.pwm_info.pwm_val;
@@ -99,20 +100,33 @@ void disable_PWM_TIM(void)
 	BLDC_info_data.pwm_info.timer_state = TIMER_DISABLE;
 }
 
-void reg_spd(spd_reg_struct * p_spd)
+void loop_spd(loop_spd_struct * p_spd)
 {
 	if (BRAKE_ON == BLDC_info_data.brake_info.brake_state)
 	{
-		p_spd->acc = -0.01;	
+		p_spd->acc = -0.0003;	
 	}
 	else
 	{
-		p_spd->acc = 0.003;
+		p_spd->acc = BLDC_info_data.throttle_info.acc * 0.01;
 	}
-	if (p_spd->set_spd < p_spd->targe_spd)
+	if (p_spd->acc > 0)
 	{
-		p_spd->set_spd += p_spd->acc;
+		if (p_spd->set_spd < p_spd->targe_spd)
+		{
+			p_spd->set_spd += p_spd->acc;
+		}
 	}
+	if (p_spd->acc < 0)
+	{
+		if (p_spd->set_spd > 0)
+		{
+			p_spd->set_spd += p_spd->acc;
+		}
+	}
+	if (p_spd->set_spd > p_spd->targe_spd) p_spd->set_spd = p_spd->targe_spd;
+	if (p_spd->set_spd < 0) p_spd->set_spd = 0;
+	//printf("acc_in = %f, acc = %f, se_spd = %f\r\n",BLDC_info_data.throttle_info.acc,p_spd->acc,p_spd->set_spd);
 
 }
 
@@ -181,8 +195,8 @@ void init_vf_data(void)
 	BLDC_info_data.vf_reg.hall_should_state[3] = 1;
 	BLDC_info_data.vf_reg.hall_should_state[4] = 3;
 	BLDC_info_data.vf_reg.hall_should_state[5] = 2;		
-	BLDC_info_data.vf_reg.hall_step_max = 36;
-	BLDC_info_data.vf_reg.hall_step_interval = 32;
+	BLDC_info_data.vf_reg.hall_step_max = 12;
+	BLDC_info_data.vf_reg.hall_step_interval = 64;
 	BLDC_info_data.vf_reg.hall_step_cnt = 0;
 	BLDC_info_data.vf_reg.hall_step_run = 0;
 	switch (BLDC_info_data.hall_info.hall_state)
@@ -225,6 +239,19 @@ void vf_reg(vf_reg_struct* p_vf_reg)
 	}
 
 }
+
+void init_loop_spd(void)
+{
+	BLDC_info_data.loop_spd.targe_spd = 0.8;
+	BLDC_info_data.loop_spd.acc = 0;
+	BLDC_info_data.loop_spd.set_spd = BLDC_info_data.vf_reg.set_spd;
+}
+u32 stop_cnt = 0;
+void init_stop(void)
+{
+	stop_cnt = 0;
+}
+
 void check_motor_work_state(void)
 {
 	if (BLDC_info_data.error_code > 0)
@@ -254,11 +281,27 @@ void check_motor_work_state(void)
 			}
 			else
 			{
-				//BLDC_info_data.BLDC_State = BLDC_SPEED_LOOP_RUNNING;
+				init_loop_spd();
+				BLDC_info_data.BLDC_State = BLDC_SPEED_LOOP_RUNNING;
 			}
 			break;
 		case BLDC_SPEED_LOOP_RUNNING:
-			reg_spd(&BLDC_info_data.spd_reg);
+			loop_spd(&BLDC_info_data.loop_spd);
+			if ((BRAKE_ON == BLDC_info_data.brake_info.brake_state) && 
+				(0== BLDC_info_data.loop_spd.set_spd))
+			{
+				init_stop();
+				BLDC_info_data.BLDC_State = BLDC_STOP;
+			}
+			break;
+		case BLDC_STOP:
+			++stop_cnt;
+			if (stop_cnt > 2000)
+			{
+				BLDC_info_data.BLDC_State = BLDC_READY;
+			}
+			break;
+		default:
 			break;
 	}
 
@@ -285,7 +328,7 @@ void g_BLDC_control(void)
 void g_init_BLDC_info(void)
 {
 	memset(&BLDC_info_data,0,sizeof(BLDC_info_struct));
-	BLDC_info_data.spd_reg.targe_spd = 0.5;
+	BLDC_info_data.loop_spd.targe_spd = 0.5;
 	BLDC_info_data.throttle_info.offset = -1;
 	init_vf_data();
 
