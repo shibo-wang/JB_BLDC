@@ -122,25 +122,16 @@ void loop_spd(loop_spd_struct * p_spd)
 {
 	if (BRAKE_ON == BLDC_info_data.brake_info.brake_state)
 	{
-		p_spd->acc = -0.0003;	
+		p_spd->set_spd = 0;	
 	}
 	else
 	{
-		p_spd->acc = BLDC_info_data.throttle_info.acc * 0.01;
-	}
-	if (p_spd->acc > 0)
-	{
-		if (p_spd->set_spd < p_spd->targe_spd)
+		if (BLDC_info_data.throttle_info.acc > 0)
 		{
+			p_spd->acc = BLDC_info_data.throttle_info.acc * 0.01;
 			p_spd->set_spd += p_spd->acc;
-		}
-	}
-	if (p_spd->acc < 0)
-	{
-		if (p_spd->set_spd > 0)
-		{
-			p_spd->set_spd += p_spd->acc;
-		}
+			if (p_spd->set_spd > p_spd->targe_spd) p_spd->set_spd = p_spd->targe_spd;
+		}		
 	}
 	if (p_spd->set_spd > p_spd->targe_spd) p_spd->set_spd = p_spd->targe_spd;
 	if (p_spd->set_spd < 0) p_spd->set_spd = 0;
@@ -305,16 +296,14 @@ void check_motor_work_state(void)
 			break;
 		case BLDC_SPEED_LOOP_RUNNING:
 			loop_spd(&BLDC_info_data.loop_spd);
-			if ((BRAKE_ON == BLDC_info_data.brake_info.brake_state) && 
-				(0== BLDC_info_data.loop_spd.set_spd))
+			if (BRAKE_ON == BLDC_info_data.brake_info.brake_state)
 			{
 				init_stop();
 				BLDC_info_data.BLDC_State = BLDC_STOP;
 			}
 			break;
 		case BLDC_STOP:
-			++stop_cnt;
-			if (stop_cnt > 2000)
+			if (BLDC_info_data.spd_info.cal_spd < 2)
 			{
 				BLDC_info_data.BLDC_State = BLDC_READY;
 			}
