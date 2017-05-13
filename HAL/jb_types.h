@@ -158,6 +158,11 @@ typedef struct
 	u32 cal_spd;			//round per second.
 }spd_info_struct;
 
+typedef struct
+{
+	u32 tick_cnt;
+}tick_info_struct;
+
 
 typedef struct
  {
@@ -165,6 +170,7 @@ typedef struct
 	brake_info_struct brake_info;
   	throttle_info_struct throttle_info;
 	hall_info_struct hall_info;
+	tick_info_struct tick_info;
 	spd_info_struct spd_info; 
    	BLDC_state_enum BLDC_State;//״̬
    	vf_reg_struct vf_reg;

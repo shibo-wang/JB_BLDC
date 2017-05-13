@@ -89,10 +89,9 @@ void PendSV_Handler(void)
 
 void SysTick_Handler(void)
 {
-    static u32 tick_times;
+	++BLDC_info_data.tick_info.tick_cnt;
 	g_BLDC_control();
-	tick_times++;
-	g_flash_led(tick_times);
+	g_flash_led(BLDC_info_data.tick_info.tick_cnt);
 }
 
 
