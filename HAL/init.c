@@ -388,7 +388,8 @@ void config_CCU()
 
 void g_init_all(void) 
 {
-    config_UART();
+	BLDC_info_data.init_ok = FALSE;
+	config_UART();
    	g_config_HALL();
     config_PWM();
     g_config_LED();

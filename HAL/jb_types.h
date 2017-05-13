@@ -133,6 +133,8 @@ typedef struct
 {
 	u32 gpio_raw_in;
 	u32 hall_state;
+	u32 last_hall_state;
+	u32 hall_has_changed;
 }hall_info_struct;
 #define HALL_MAX_STATE (6)
 typedef struct
@@ -147,6 +149,15 @@ typedef struct
 	u32 hall_step_interval;
 }vf_reg_struct;
 
+typedef struct
+{
+	u32 cal_interval;		//ms unit
+	u32 cal_cnt;		//ms unit
+	u32 hall_change_cnt;
+	u32 hall_cnt_per_rount;
+	u32 cal_spd;			//round per second.
+}spd_info_struct;
+
 
 typedef struct
  {
@@ -154,6 +165,7 @@ typedef struct
 	brake_info_struct brake_info;
   	throttle_info_struct throttle_info;
 	hall_info_struct hall_info;
+	spd_info_struct spd_info; 
    	BLDC_state_enum BLDC_State;//״̬
    	vf_reg_struct vf_reg;
    	loop_spd_struct loop_spd;

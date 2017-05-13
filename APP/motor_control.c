@@ -12,11 +12,29 @@ BLDC_info_struct BLDC_info_data = {0};
 void enable_PWM_TIM(void);
 void disable_PWM_TIM(void);
 
+void cal_spd(spd_info_struct* p_spd)
+{
+	++p_spd->cal_cnt;
+	if (BLDC_info_data.hall_info.hall_has_changed)
+	{
+		BLDC_info_data.hall_info.hall_has_changed = 0;
+    	++p_spd->hall_change_cnt;
+	}
+	if (p_spd->cal_cnt >= p_spd->cal_interval)
+	{
+		p_spd->cal_spd = ((1000.0 * p_spd->hall_change_cnt) /(p_spd->hall_cnt_per_rount * p_spd->cal_interval));
+		p_spd->hall_change_cnt = 0;
+		p_spd->cal_cnt = 0;
+	}
+	//printf("spd = %d,change_cnt = %d\r\n",p_spd->cal_spd,p_spd->hall_change_cnt);
+}
+
 void update_BLDC_in(void)
 {
 	g_update_throttle(&BLDC_info_data.throttle_info);
 	g_update_BLDC_break_in(&BLDC_info_data.brake_info);
 	g_update_HALL_state(&BLDC_info_data.hall_info);
+	cal_spd(&BLDC_info_data.spd_info);
 }
 
 void update_BLDC_out(void)
@@ -330,7 +348,8 @@ void g_init_BLDC_info(void)
 	memset(&BLDC_info_data,0,sizeof(BLDC_info_struct));
 	BLDC_info_data.loop_spd.targe_spd = 0.5;
 	BLDC_info_data.throttle_info.offset = -1;
-	init_vf_data();
+	BLDC_info_data.spd_info.cal_interval = 100;
+	BLDC_info_data.spd_info.hall_cnt_per_rount = 12;
 
 }
 
