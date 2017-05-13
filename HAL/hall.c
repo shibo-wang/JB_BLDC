@@ -83,19 +83,12 @@ void g_update_HALL_state(hall_info_struct* p_hall_info)
 */
 	if (p_hall_info->gpio_raw_in < 1 || p_hall_info->gpio_raw_in > 6)
 	{
-		BLDC_info_data.error_code |= INVALID_HALL_IN;
+		//BLDC_info_data.error_code |= INVALID_HALL_IN;
 		printf("error: invalid HALL value: %d\r\n",p_hall_info->gpio_raw_in);
     	return;
 	}
 	p_hall_info->last_hall_state = p_hall_info->hall_state;
-	if(!g_motor_direction)
-    {   
-        p_hall_info->hall_state = 7 - p_hall_info->gpio_raw_in;
-    }
-	else
-	{
-		p_hall_info->hall_state = p_hall_info->gpio_raw_in;
-	}
+	p_hall_info->hall_state = p_hall_info->gpio_raw_in;
 	if (p_hall_info->last_hall_state != p_hall_info->hall_state)
 	{
 		p_hall_info->hall_has_changed = 1;

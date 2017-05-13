@@ -277,7 +277,8 @@ void check_motor_work_state(void)
 			}
 			break;
 		case BLDC_READY:
-			if (is_periperal_OK() && (BLDC_info_data.throttle_info.acc> 0))
+			//if (is_periperal_OK() && (BLDC_info_data.throttle_info.acc> 0))
+			if (is_periperal_OK())
 			{
 				init_vf_data();
 				BLDC_info_data.BLDC_State = BLDC_VF_RUNNING;
@@ -295,7 +296,8 @@ void check_motor_work_state(void)
 			}
 			break;
 		case BLDC_SPEED_LOOP_RUNNING:
-			loop_spd(&BLDC_info_data.loop_spd);
+			//loop_spd(&BLDC_info_data.loop_spd);
+			BLDC_info_data.loop_spd.set_spd = 0.3;
 			if (BRAKE_ON == BLDC_info_data.brake_info.brake_state)
 			{
 				init_stop();
