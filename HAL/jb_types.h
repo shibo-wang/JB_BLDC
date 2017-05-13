@@ -60,7 +60,7 @@ typedef enum
 {
   BLDC_IDLE 			   	= 0x0,
   BLDC_READY 		   		= 0x1,
-  BLDC_ALIGN			 	= 0x2,
+  BLDC_VF_RUNNING			 	= 0x2,
   BLDC_SPEED_LOOP_RUNNING  	= 0x04,  
   BLDC_FATAL_ERROR			= 0x40
 } BLDC_state_enum;
@@ -132,7 +132,19 @@ typedef struct
 {
 	u32 gpio_raw_in;
 	u32 hall_state;
-}hall_info_sruct;
+}hall_info_struct;
+#define HALL_MAX_STATE (6)
+typedef struct
+{
+	f32 set_spd;
+	u32 hall_state_ori;
+	u32 hall_should_state[HALL_MAX_STATE];
+	u32 hall_step_run;
+	u32 hall_step_cnt;
+	u32 hall_step_max;
+	u32 hall_step_now;
+	u32 hall_step_interval;
+}vf_reg_struct;
 
 
 typedef struct
@@ -140,8 +152,9 @@ typedef struct
   	bool init_ok;
 	brake_info_struct brake_info;
   	throttle_info_struct throttle_info;
-	hall_info_sruct hall_info;
+	hall_info_struct hall_info;
    	BLDC_state_enum BLDC_State;//״̬
+   	vf_reg_struct vf_reg;
    	spd_reg_struct spd_reg;
    	PWM_info_stuct pwm_info;
    	error_state_eum error_code;

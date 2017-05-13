@@ -15,16 +15,36 @@ void update_BLDC_in(void)
 {
 	g_update_throttle(&BLDC_info_data.throttle_info);
 	g_update_BLDC_break_in(&BLDC_info_data.brake_info);
+	g_update_HALL_state(&BLDC_info_data.hall_info);
 }
 
 void update_BLDC_out(void)
 {
-	if (BLDC_ALIGN == BLDC_info_data.BLDC_State || 
+	f32 set_spd;
+	u32 hall_state;
+	u32 pwm_val;
+
+	if (BLDC_VF_RUNNING == BLDC_info_data.BLDC_State || 
 		BLDC_SPEED_LOOP_RUNNING == BLDC_info_data.BLDC_State)
 	{
-		enable_PWM_TIM();
-		BLDC_info_data.pwm_info.pwm_val = (1 - BLDC_info_data.spd_reg.set_spd) * PWM_PERIOD;
+		
+		if (BLDC_VF_RUNNING == BLDC_info_data.BLDC_State)
+		{
+			set_spd = BLDC_info_data.vf_reg.set_spd;
+		}
+		else if (BLDC_SPEED_LOOP_RUNNING == BLDC_info_data.BLDC_State)
+		{
+			set_spd = BLDC_info_data.spd_reg.set_spd;
+		}
+		BLDC_info_data.pwm_info.pwm_val = (1 - set_spd) * PWM_PERIOD;
+		pwm_val = BLDC_info_data.pwm_info.pwm_val;
+		hall_state = BLDC_info_data.vf_reg.hall_should_state[BLDC_info_data.vf_reg.hall_step_now];
+		if (BLDC_VF_RUNNING == BLDC_info_data.BLDC_State)
+		{
+			g_update_bridge_state(pwm_val,hall_state);
+		}
 		BLDC_info_data.led_info.flash_interval_ms = 1000;
+		enable_PWM_TIM();
 	}
 	else
 	{
@@ -36,12 +56,12 @@ void update_BLDC_out(void)
 			BLDC_info_data.led_info.flash_interval_ms = 250;
 		}
 	}
-	if (BLDC_info_data.pwm_info.pwm_val < PWM_MIN_VALUE || BLDC_info_data.pwm_info.pwm_val > PWM_MAX_VALUE)
+	if ((TIMER_ENABLE == BLDC_info_data.pwm_info.timer_state)&& (BLDC_info_data.pwm_info.pwm_val < PWM_MIN_VALUE || BLDC_info_data.pwm_info.pwm_val > PWM_MAX_VALUE))
 	{
 		if (BLDC_info_data.pwm_info.pwm_val < PWM_MIN_VALUE || BLDC_info_data.pwm_info.pwm_val > PWM_MAX_VALUE)
     	{
 			BLDC_info_data.error_code |= INVALID_PWM_VAL;
-			printf("error: invalid pwm value: %d",BLDC_info_data.pwm_info.pwm_val);
+			printf("error: invalid pwm value: %d\r\n",BLDC_info_data.pwm_info.pwm_val);
         	return;    
     	}
 	}
@@ -63,10 +83,6 @@ u32 is_periperal_OK(void)
 
 void enable_PWM_TIM(void)
 {
-	TIM1->CCR1 = 0; 
-	TIM1->CCR2 = 0; 
-	TIM1->CCR3 = 0;
-	TIM1->CCER = 0x0000;
     TIM_Cmd(TIM1, ENABLE);
     TIM_CtrlPWMOutputs(TIM1, ENABLE); 
 	BLDC_info_data.pwm_info.timer_state = TIMER_ENABLE;
@@ -102,7 +118,8 @@ void reg_spd(spd_reg_struct * p_spd)
 
 void g_update_bridge_state(u32 i_pwm_val,u32 i_hall_state)
 { 
-   	switch(i_hall_state)
+//	printf("pwm val = %u, hall state = %u\r\n",i_pwm_val,i_hall_state);
+	switch(i_hall_state)
 	{
         case 5:    
             //U->V
@@ -153,11 +170,63 @@ void g_update_bridge_state(u32 i_pwm_val,u32 i_hall_state)
 
 }
 
+void init_vf_data(void)
+{
+	
 
+	BLDC_info_data.vf_reg.set_spd = 0.1;
+	BLDC_info_data.vf_reg.hall_should_state[0] = 6;
+	BLDC_info_data.vf_reg.hall_should_state[1] = 4;
+	BLDC_info_data.vf_reg.hall_should_state[2] = 5;
+	BLDC_info_data.vf_reg.hall_should_state[3] = 1;
+	BLDC_info_data.vf_reg.hall_should_state[4] = 3;
+	BLDC_info_data.vf_reg.hall_should_state[5] = 2;		
+	BLDC_info_data.vf_reg.hall_step_max = 36;
+	BLDC_info_data.vf_reg.hall_step_interval = 32;
+	BLDC_info_data.vf_reg.hall_step_cnt = 0;
+	BLDC_info_data.vf_reg.hall_step_run = 0;
+	switch (BLDC_info_data.hall_info.hall_state)
+	{
+		case 6:
+			BLDC_info_data.vf_reg.hall_state_ori = 0;
+			break;
+		case 4:
+			BLDC_info_data.vf_reg.hall_state_ori = 1;
+			break;
+		case 5:
+			BLDC_info_data.vf_reg.hall_state_ori = 2;
+			break;
+		case 1:
+			BLDC_info_data.vf_reg.hall_state_ori = 3;
+			break;
+		case 3:
+			BLDC_info_data.vf_reg.hall_state_ori = 4;
+			break;
+		case 2:
+			BLDC_info_data.vf_reg.hall_state_ori = 5;
+			break;
+		default:
+			BLDC_info_data.vf_reg.hall_state_ori = 0;
+			break;	
+	}
+	BLDC_info_data.vf_reg.hall_step_now = BLDC_info_data.vf_reg.hall_state_ori;
+}
+void vf_reg(vf_reg_struct* p_vf_reg)
+{
+	++p_vf_reg->hall_step_run;
+	if (0 == (p_vf_reg->hall_step_run & (p_vf_reg->hall_step_interval -1)))
+	{
+		++p_vf_reg->hall_step_cnt;
+		++p_vf_reg->hall_step_now;
+		if (p_vf_reg->hall_step_now >= HALL_MAX_STATE)
+		{
+			p_vf_reg->hall_step_now = 0;
+		}
+	}
 
+}
 void check_motor_work_state(void)
 {
-	static u32 align_time=0;
 	if (BLDC_info_data.error_code > 0)
 	{
 		BLDC_info_data.BLDC_State = BLDC_FATAL_ERROR;
@@ -174,17 +243,18 @@ void check_motor_work_state(void)
 		case BLDC_READY:
 			if (is_periperal_OK() && (BLDC_info_data.throttle_info.acc> 0))
 			{
-				align_time = 0;
-				BLDC_info_data.BLDC_State = BLDC_ALIGN;
+				init_vf_data();
+				BLDC_info_data.BLDC_State = BLDC_VF_RUNNING;
 			}
 			break;
-		case BLDC_ALIGN:
-			BLDC_info_data.spd_reg.set_spd = 0.05;
-			align_time++;
-			if (align_time > 200)
+		case BLDC_VF_RUNNING:			
+			if (BLDC_info_data.vf_reg.hall_step_cnt < BLDC_info_data.vf_reg.hall_step_max)
 			{
-				align_time=0;
-				BLDC_info_data.BLDC_State = BLDC_SPEED_LOOP_RUNNING;
+				vf_reg(&BLDC_info_data.vf_reg);
+			}
+			else
+			{
+				//BLDC_info_data.BLDC_State = BLDC_SPEED_LOOP_RUNNING;
 			}
 			break;
 		case BLDC_SPEED_LOOP_RUNNING:
@@ -217,6 +287,8 @@ void g_init_BLDC_info(void)
 	memset(&BLDC_info_data,0,sizeof(BLDC_info_struct));
 	BLDC_info_data.spd_reg.targe_spd = 0.5;
 	BLDC_info_data.throttle_info.offset = -1;
+	init_vf_data();
+
 }
 
 

@@ -75,7 +75,7 @@ void g_config_HALL(void)
     config_HALL_NVIC();
 }
 
-void g_update_HALL_state(hall_info_sruct* p_hall_info)
+void g_update_HALL_state(hall_info_struct* p_hall_info)
 {
     p_hall_info->gpio_raw_in = 
 				 ((((GPIO_PORT_HALL_UV->IDR & GPIO_PIN_HALL_U) >> GPIO_PIN_SOURCE_HALL_U) << 2) |

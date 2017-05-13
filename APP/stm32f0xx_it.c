@@ -103,7 +103,8 @@ void handle_HALL_interrupt(void)
 	u32 l_pwm_value = 0;
 	u32 l_HALL_state = 0;
 	static u32 HALL_intterupt_cnt = 0;
-	if (BLDC_info_data.pwm_info.timer_state == TIMER_ENABLE)
+	if (TIMER_ENABLE == BLDC_info_data.pwm_info.timer_state&&
+		BLDC_SPEED_LOOP_RUNNING == BLDC_info_data.BLDC_State)
 	{
 		g_update_HALL_state(&BLDC_info_data.hall_info);
 		l_pwm_value = BLDC_info_data.pwm_info.pwm_val;
