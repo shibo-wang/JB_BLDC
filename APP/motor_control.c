@@ -298,11 +298,11 @@ void check_motor_work_state(void)
 		case BLDC_SPEED_LOOP_RUNNING:
 			//loop_spd(&BLDC_info_data.loop_spd);
 			BLDC_info_data.loop_spd.set_spd = 0.3;
-			if (BRAKE_ON == BLDC_info_data.brake_info.brake_state)
-			{
-				init_stop();
-				BLDC_info_data.BLDC_State = BLDC_STOP;
-			}
+//			if (BRAKE_ON == BLDC_info_data.brake_info.brake_state)
+//			{
+//				init_stop();
+//				BLDC_info_data.BLDC_State = BLDC_STOP;
+//			}
 			break;
 		case BLDC_STOP:
 			if (BLDC_info_data.spd_info.cal_spd < 2)
