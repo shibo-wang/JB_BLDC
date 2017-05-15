@@ -89,7 +89,15 @@ void g_update_HALL_state(hall_info_struct* p_hall_info)
     	return;
 	}
 	p_hall_info->last_hall_state = p_hall_info->hall_state;
-	p_hall_info->hall_state = p_hall_info->gpio_raw_in;
+	if(!g_motor_direction)
+    {   
+        p_hall_info->hall_state = 7 - p_hall_info->gpio_raw_in;
+    }
+	else
+	{
+		p_hall_info->hall_state = p_hall_info->gpio_raw_in;
+	}	
+	//p_hall_info->hall_state = p_hall_info->gpio_raw_in;
 	if (p_hall_info->last_hall_state != p_hall_info->hall_state)
 	{
 		p_hall_info->hall_has_changed = 1;
